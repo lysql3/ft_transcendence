@@ -1,28 +1,24 @@
-# Stage 1: Build
-FROM node:22-alpine AS builder
+FROM node:24-alpine
 
-WORKDIR /usr/src/app
+RUN apk add --no-cache openssl
+
+WORKDIR /app
 
 COPY package*.json ./
+
+RUN echo "===== package.json =====" \
+    && grep '"typescript"' package.json \
+    && echo "===== package-lock.json =====" \
+    && grep -n '"typescript"' package-lock.json
+RUN node --version && npm --version
+
+
 RUN npm ci
 
+# COPY prisma ./prisma
+# RUN npx prisma generate
+
 COPY . .
-RUN npm run build
-
-# Stage 2: Production runner
-FROM node:22-alpine AS runner
-
-WORKDIR /usr/src/app
-
-ENV NODE_ENV=production
-
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-COPY --from=builder /usr/src/app/dist ./dist
-
-USER node
 
 EXPOSE 3000
-
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:dev"]

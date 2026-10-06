@@ -1,24 +1,33 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: ft_backend
+  postgres:
+    build: ./database
     restart: unless-stopped
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "3000:3000"
-    environment:
-      - PORT=3000
 
-  nginx:
-    build:
-      context: ./infra
-      dockerfile: Dockerfile
-    container_name: ft_nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
-    depends_on:
-      - backend
+
+volumes:
+  pgdata:
+
+    # volumes:
+    #   - ./backend:/app
+    #   - /app/node_modules
+    # for presistance and hot reloading of node_modules in dev mode
