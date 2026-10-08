@@ -1,8 +1,8 @@
 services:
   postgres:
-    build: ./database
+    build:
+      context: ./database
     restart: unless-stopped
-    env_file: .env
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -10,13 +10,13 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    networks:
+      - ft_tra_networks
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
     restart: unless-stopped
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,10 +24,12 @@ services:
       - ft_tra_networks
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
     restart: unless-stopped
-    ports:
-      - "8080:80" # temporary, remove when the main Nginx (Feature 1.5) fronts it
+    depends_on:
+      backend:
+        condition: service_started
     networks:
       - ft_tra_networks
 
@@ -37,8 +39,3 @@ networks:
 
 volumes:
   pgdata:
-
-    # volumes:
-    #   - ./backend:/app
-    #   - /app/node_modules
-    # for presistance and hot reloading of node_modules in dev mode

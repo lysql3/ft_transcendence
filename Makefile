@@ -1,69 +1,88 @@
-COMPOSE		= docker compose
-COMPOSE_FILE	= docker-compose.yml
+COMPOSE			= docker compose
+ENV_DEV			= .env.dev
+ENV_PROD		= .env.prod
+
+COMPOSE_BASE	= docker-compose.base.yml
+COMPOSE_DEV		= docker-compose.dev.yml
+COMPOSE_PROD	= docker-compose.prod.yml
+
+CMD_DEV			= $(COMPOSE) --env-file $(ENV_DEV) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
+CMD_PROD		= $(COMPOSE) --env-file $(ENV_PROD) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
 
 RESET	= \033[0m
 BOLD	= \033[1m
 GREEN	= \033[32m
 YELLOW	= \033[33m
 CYAN	= \033[36m
+MAGENTA	= \033[35m
 
+.PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
+        prod prod-d build-prod down-prod restart-prod logs-prod \
+        down clean fclean test test-e2e lint build-local
 
-.PHONY: all up down build rebuild restart logs clean fclean test lint help
+# dev
+dev: build-dev
+	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
+	$(CMD_DEV) up
 
-all: build up
+dev-d: build-dev
+	@echo "$(GREEN)Starting development environment in detached mode…$(RESET)"
+	$(CMD_DEV) up -d
 
-help:
-	@echo ""
-	@echo "$(BOLD)$(CYAN)ft_transcendence$(RESET) – available targets:"
-	@echo ""
-	@echo "  $(BOLD)all$(RESET)      Build images and start all services"
-	@echo "  $(BOLD)up$(RESET)       Start services (attach logs)"
-	@echo "  $(BOLD)down$(RESET)     Stop and remove containers"
-	@echo "  $(BOLD)build$(RESET)    Build (or rebuild) Docker images"
-	@echo "  $(BOLD)rebuild$(RESET)  Force rebuild without cache"
-	@echo "  $(BOLD)restart$(RESET)  Down then up"
-	@echo "  $(BOLD)logs$(RESET)     Follow logs of all services"
-	@echo "  $(BOLD)clean$(RESET)    Stop containers and remove volumes"
-	@echo "  $(BOLD)fclean$(RESET)   clean + remove all project images"
-	@echo "  $(BOLD)test$(RESET)     Run backend unit tests"
-	@echo "  $(BOLD)lint$(RESET)     Run backend linter"
-	@echo ""
+build-dev:
+	@echo "$(CYAN)Building dev images (target: dev)…$(RESET)"
+	$(CMD_DEV) build
 
-up:
-	@echo "$(GREEN)Starting services…$(RESET)"
-	$(COMPOSE) -f $(COMPOSE_FILE) up
+down-dev:
+	@echo "$(YELLOW)Stopping development environment…$(RESET)"
+	$(CMD_DEV) down
 
-up-d:
-	@echo "$(GREEN)Starting services (detached)…$(RESET)"
-	$(COMPOSE) -f $(COMPOSE_FILE) up -d
+restart-dev: down-dev dev
 
+logs-dev:
+	$(CMD_DEV) logs -f
+
+# prod
+prod: build-prod
+	@echo "$(MAGENTA)Starting production environment…$(RESET)"
+	$(CMD_PROD) up
+
+prod-d: build-prod
+	@echo "$(MAGENTA)Starting production environment in detached mode…$(RESET)"
+	$(CMD_PROD) up -d
+
+build-prod:
+	@echo "$(CYAN)Building production images (target: prod)…$(RESET)"
+	$(CMD_PROD) build
+
+down-prod:
+	@echo "$(YELLOW)Stopping production environment…$(RESET)"
+	$(CMD_PROD) down
+
+restart-prod: down-prod prod
+
+logs-prod:
+	$(CMD_PROD) logs -f
+
+# cleanup
 down:
-	@echo "$(YELLOW)Stopping services…$(RESET)"
-	$(COMPOSE) -f $(COMPOSE_FILE) down
-
-build:
-	@echo "$(CYAN)Building images…$(RESET)"
-	$(COMPOSE) -f $(COMPOSE_FILE) build
-
-rebuild:
-	@echo "$(CYAN)Rebuilding images (no cache)…$(RESET)"
-	$(COMPOSE) -f $(COMPOSE_FILE) build --no-cache
-
-restart: down up
-
-logs:
-	$(COMPOSE) -f $(COMPOSE_FILE) logs -f
+	@echo "$(YELLOW)Stopping all project containers…$(RESET)"
+	$(CMD_DEV) down 2>/dev/null || true
+	$(CMD_PROD) down 2>/dev/null || true
 
 clean:
-	@echo "$(YELLOW)Removing containers and volumes…$(RESET)"
-	$(COMPOSE) -f $(COMPOSE_FILE) down -v
+	@echo "$(YELLOW)Stopping containers and removing volumes…$(RESET)"
+	$(CMD_DEV) down -v 2>/dev/null || true
+	$(CMD_PROD) down -v 2>/dev/null || true
 
 fclean: clean
-	@echo "$(YELLOW)Removing project images…$(RESET)"
-	$(COMPOSE) -f $(COMPOSE_FILE) down --rmi local
+	@echo "$(YELLOW)Removing all project images…$(RESET)"
+	$(CMD_DEV) down -v --rmi local 2>/dev/null || true
+	$(CMD_PROD) down -v --rmi local 2>/dev/null || true
 
+# tests
 test:
-	@echo "$(CYAN)Running backend tests…$(RESET)"
+	@echo "$(CYAN)Running backend unit tests…$(RESET)"
 	cd backend && npm test
 
 test-e2e:
@@ -71,5 +90,45 @@ test-e2e:
 	cd backend && npm run test:e2e
 
 lint:
-	@echo "$(CYAN)Running linter…$(RESET)"
+	@echo "$(CYAN)Linting backend…$(RESET)"
 	cd backend && npm run lint
+	@echo "$(CYAN)Linting frontend…$(RESET)"
+	cd frontend && npm run lint
+
+build-local:
+	@echo "$(CYAN)Building backend locally…$(RESET)"
+	cd backend && npm run build
+	@echo "$(CYAN)Building frontend locally…$(RESET)"
+	cd frontend && npm run build
+
+help:
+	@echo ""
+	@echo "$(BOLD)$(CYAN)ft_transcendence$(RESET) – Management Commands:"
+	@echo ""
+	@echo "  $(BOLD)$(GREEN)[Development Environment]$(RESET)"
+	@echo "    $(BOLD)make dev$(RESET)          Start dev containers with live reload (attached logs)"
+	@echo "    $(BOLD)make dev-d$(RESET)        Start dev containers in detached background mode"
+	@echo "    $(BOLD)make build-dev$(RESET)    Build development images (target: dev)"
+	@echo "    $(BOLD)make down-dev$(RESET)     Stop dev containers"
+	@echo "    $(BOLD)make restart-dev$(RESET)  Restart dev containers"
+	@echo "    $(BOLD)make logs-dev$(RESET)     Follow dev container logs"
+	@echo ""
+	@echo "  $(BOLD)$(MAGENTA)[Production Environment]$(RESET)"
+	@echo "    $(BOLD)make prod$(RESET)         Start production containers (attached logs)"
+	@echo "    $(BOLD)make prod-d$(RESET)       Start production containers in detached mode"
+	@echo "    $(BOLD)make build-prod$(RESET)   Build production multi-stage images (target: prod)"
+	@echo "    $(BOLD)make down-prod$(RESET)    Stop prod containers"
+	@echo "    $(BOLD)make restart-prod$(RESET) Restart prod containers"
+	@echo "    $(BOLD)make logs-prod$(RESET)    Follow prod container logs"
+	@echo ""
+	@echo "  $(BOLD)$(YELLOW)[Cleanup]$(RESET)"
+	@echo "    $(BOLD)make down$(RESET)         Stop all running project containers"
+	@echo "    $(BOLD)make clean$(RESET)        Stop containers and remove volumes (pgdata)"
+	@echo "    $(BOLD)make fclean$(RESET)       clean + remove project images and orphans"
+	@echo ""
+	@echo "  $(BOLD)$(CYAN)[Local Quality & Tests]$(RESET)"
+	@echo "    $(BOLD)make test$(RESET)         Run backend unit tests locally"
+	@echo "    $(BOLD)make test-e2e$(RESET)     Run backend end-to-end tests locally"
+	@echo "    $(BOLD)make lint$(RESET)         Lint both frontend and backend"
+	@echo "    $(BOLD)make build-local$(RESET)  Build both frontend and backend locally"
+	@echo ""
