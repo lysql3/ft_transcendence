@@ -1,54 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Transcendence - Users Management</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>Transcendence User Dashboard</h1>
-      <p class="subtitle">Skeleton Demo &mdash; Frontend &amp; NestJS Backend</p>
-    </header>
-
-    <main>
-      <section class="card form-section">
-        <h2>Add New User</h2>
-        <form id="user-form">
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="e.g. alice" required />
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="e.g. alice@example.com" required />
-          </div>
-          <button type="submit" id="submit-btn" class="btn btn-primary">Create User</button>
-        </form>
-        <div id="form-feedback" class="feedback"></div>
-      </section>
-
-      <section class="card list-section">
-        <div class="list-header">
-          <h2>Current Users</h2>
-          <button id="refresh-btn" class="btn btn-secondary">Refresh</button>
-        </div>
-        <div id="loading" class="loading-state">Loading users...</div>
-        <div id="error" class="error-state" style="display: none;"></div>
-        <ul id="users-list" class="users-list"></ul>
-        <div id="empty-state" class="empty-state" style="display: none;">
-          No users found. Create one above!
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <p>ft_transcendence skeleton &bull; NestJS + Nginx + Vanilla Frontend</p>
-    </footer>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

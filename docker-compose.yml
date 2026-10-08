@@ -20,9 +20,20 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    ports:
-      - "3000:3000"
+    networks:
+      - ft_tra_networks
 
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80" # temporary, remove when the main Nginx (Feature 1.5) fronts it
+    networks:
+      - ft_tra_networks
+
+networks:
+  ft_tra_networks:
+    driver: bridge
 
 volumes:
   pgdata:
