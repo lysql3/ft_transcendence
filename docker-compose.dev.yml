@@ -7,6 +7,18 @@ services:
     env_file:
       - .env.dev
 
+  adminer:
+    image: adminer:4.8.1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    networks:
+      - ft_tra_networks
+
   backend:
     build:
       target: dev

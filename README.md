@@ -26,6 +26,7 @@ The application is structured into modular microservices communicating across an
 ```
 
 ### 1. `postgres` (Database Service)
+
 - **Role:** Relational database storing persistent application data.
 - **Image:** `postgres:16-alpine`.
 - **Healthcheck:** Evaluates `pg_isready -U $POSTGRES_USER -d $POSTGRES_DB` to guarantee readiness before dependent services launch.
@@ -35,6 +36,7 @@ The application is structured into modular microservices communicating across an
   - `prod`: Hardened configuration, internal to Docker network (not exposed to host).
 
 ### 2. `backend` (NestJS API Service)
+
 - **Role:** REST API, business logic, health checks, authentication, and database access.
 - **Runtime:** Node.js 24 Alpine, NestJS 12.
 - **Routing:** All routes are registered under global prefix `/api` (e.g., `/api`, `/api/health`).
@@ -45,6 +47,7 @@ The application is structured into modular microservices communicating across an
   - `prod`: Hardened runtime containing only production dependencies (`npm ci --omit=dev`), runs compiled `node dist/main.js` under the non-root `node` user.
 
 ### 3. `frontend` (React + Tailwind v4 + Vite)
+
 - **Role:** Client user interface dashboard.
 - **Stack:** React 19, Tailwind CSS v4, Vite 8, TypeScript.
 - **Features:** Responsive dark theme, queries backend `/api/health` status with interactive feedback.
@@ -59,11 +62,11 @@ The application is structured into modular microservices communicating across an
 
 The project supports three environment files:
 
-| File | Purpose |
-|------|---------|
-| [`.env.example`](file:///.env.example) | Template listing all configurable variables with comments. |
-| [`.env.dev`](file:///.env.dev) | Default configuration for local development and `docker-compose.dev.yml`. |
-| [`.env.prod`](file:///.env.prod) | Production configuration used by `docker-compose.prod.yml`. |
+| File                                   | Purpose                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------- |
+| [`.env.example`](file:///.env.example) | Template listing all configurable variables with comments.                |
+| [`.env.dev`](file:///.env.dev)         | Default configuration for local development and `docker-compose.dev.yml`. |
+| [`.env.prod`](file:///.env.prod)       | Production configuration used by `docker-compose.prod.yml`.               |
 
 ### Key Environment Variables
 
@@ -84,6 +87,7 @@ BACKEND_URL=http://backend:3000            # Backend target for frontend reverse
 ## 🚀 Running the Project
 
 ### Option A: Containerized Development (Docker Compose)
+
 Best for testing the entire integrated stack with hot-reloading and healthchecks.
 
 ```bash
@@ -106,10 +110,12 @@ make down-dev
 - **Frontend:** Visit `http://localhost:5173`
 - **Backend API:** Visit `http://localhost:3000/api/health`
 - **Database:** Connect via `localhost:5432` (`user: transcendence`, `db: transcendence_dev`)
+- **Adminer:** Visit `http://localhost:8080` and use `postgres` as the server with the development database credentials
 
 ---
 
 ### Option B: Containerized Production (Docker Compose)
+
 Tests multi-stage optimized builds (compiled NestJS, non-root user, static Nginx frontend, closed DB ports).
 
 ```bash
@@ -132,29 +138,37 @@ make down-prod
 ---
 
 ### Option C: Local Development (Bare Metal / Host Machine)
+
 Best for rapid code editing without Docker overhead.
 
 #### 1. Start Database (Docker)
+
 You can quickly run just PostgreSQL:
+
 ```bash
 docker run --name ft_pg_local -e POSTGRES_USER=transcendence -e POSTGRES_PASSWORD=devpassword -e POSTGRES_DB=transcendence_dev -p 5432:5432 -d postgres:16-alpine
 ```
 
 #### 2. Run Backend
+
 ```bash
 cd backend
 npm install
 npm run start:dev
 ```
+
 Backend will start on `http://localhost:3000` with watch mode enabled.
 
 #### 3. Run Frontend
+
 In a new terminal:
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
 Frontend will start on `http://localhost:5173`. Vite proxies `/api` requests to `http://localhost:3000`.
 
 ---
@@ -162,6 +176,7 @@ Frontend will start on `http://localhost:5173`. Vite proxies `/api` requests to 
 ## 🧪 Testing & Quality Assurance
 
 ### 1. Local Testing
+
 ```bash
 # Backend unit tests (Vitest)
 make test
@@ -177,9 +192,11 @@ make build-local
 ```
 
 ### 2. Testing Services in Containerized Dev Mode
+
 Once `make dev-d` is running:
 
 #### Backend Health & API:
+
 ```bash
 # Direct backend check
 curl -i http://localhost:3000/api
@@ -190,6 +207,7 @@ curl -i http://localhost:3000/api/health
 ```
 
 #### Frontend & Proxy:
+
 ```bash
 # Frontend HTML check
 curl -i http://localhost:5173/
@@ -200,6 +218,7 @@ curl -i http://localhost:5173/api/health
 ```
 
 #### Database Health:
+
 ```bash
 docker exec -it $(docker ps -qf "name=postgres") pg_isready -U transcendence -d transcendence_dev
 # Output: transcendence_dev:5432 - accepting connections
@@ -224,22 +243,22 @@ make fclean
 
 ## 🛠️ Makefile Command Cheatsheet
 
-| Command | Action |
-|---------|--------|
-| `make` / `make help` | Show all available commands |
-| `make dev` | Build and start dev stack with live reload (attached) |
-| `make dev-d` | Start dev stack in background |
-| `make build-dev` | Build dev images (`target: dev`) |
-| `make down-dev` | Stop dev containers |
-| `make logs-dev` | Stream dev logs |
-| `make prod` | Build and start production stack (attached) |
-| `make prod-d` | Start production stack in background |
-| `make build-prod` | Build multi-stage prod images (`target: prod`) |
-| `make down-prod` | Stop production containers |
-| `make logs-prod` | Stream production logs |
-| `make clean` | Stop containers and remove volumes (`pgdata`) |
-| `make fclean` | `clean` + delete project Docker images |
-| `make test` | Run backend unit tests locally |
-| `make test-e2e` | Run backend e2e tests locally |
-| `make lint` | Run linter on both backend and frontend |
-| `make build-local` | Build both backend and frontend locally |
+| Command              | Action                                                |
+| -------------------- | ----------------------------------------------------- |
+| `make` / `make help` | Show all available commands                           |
+| `make dev`           | Build and start dev stack with live reload (attached) |
+| `make dev-d`         | Start dev stack in background                         |
+| `make build-dev`     | Build dev images (`target: dev`)                      |
+| `make down-dev`      | Stop dev containers                                   |
+| `make logs-dev`      | Stream dev logs                                       |
+| `make prod`          | Build and start production stack (attached)           |
+| `make prod-d`        | Start production stack in background                  |
+| `make build-prod`    | Build multi-stage prod images (`target: prod`)        |
+| `make down-prod`     | Stop production containers                            |
+| `make logs-prod`     | Stream production logs                                |
+| `make clean`         | Stop containers and remove volumes (`pgdata`)         |
+| `make fclean`        | `clean` + delete project Docker images                |
+| `make test`          | Run backend unit tests locally                        |
+| `make test-e2e`      | Run backend e2e tests locally                         |
+| `make lint`          | Run linter on both backend and frontend               |
+| `make build-local`   | Build both backend and frontend locally               |
