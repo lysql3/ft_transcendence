@@ -13,6 +13,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
     app.setGlobalPrefix('api');
     await app.init();
   });
@@ -29,6 +30,15 @@ describe('AppController (e2e)', () => {
       .get('/api/health')
       .expect(200)
       .expect({ status: 'ok' });
+  });
+
+  it('/api/whoami (GET) uses forwarded request details', () => {
+    return request(app.getHttpServer())
+      .get('/api/whoami')
+      .set('X-Forwarded-For', '203.0.113.10')
+      .set('X-Forwarded-Proto', 'https')
+      .expect(200)
+      .expect({ ip: '203.0.113.10', protocol: 'https', secure: true });
   });
 
   afterEach(async () => {
