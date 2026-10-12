@@ -1,8 +1,8 @@
-# Prisma Commands
+# Prisma 7 Commands
 
-Prisma ORM 8 CLI. Run from the project root. Commands are listed in the order you will meet them: one-time first, daily after.
+Run from the project root. Commands are listed in the order you will meet them: one-time first, daily after.
 
-> Only `db ...` commands change the database. `contract ...` and `migration ...` commands only touch files in the repo.
+> `generate`, `validate`, `format`, `studio`, `migrate status` do not change the database schema. `migrate dev`, `migrate deploy`, `migrate reset`, `migrate resolve`, `db push` do.
 
 ---
 
@@ -10,10 +10,12 @@ Prisma ORM 8 CLI. Run from the project root. Commands are listed in the order yo
 
 | # | Command | What it does |
 |---|---------|--------------|
-| 1 | `npx prisma orm init --target postgres --authoring psl` | Creates `prisma.config.ts`, `contract.prisma`, `db.ts`, `.env.example` and installs dependencies |
-| 2 | `npx prisma contract emit` | Generates `contract.json` and `contract.d.ts` from `contract.prisma` |
-| 3 | `npx prisma db init` | Creates the tables in an empty database and signs it |
-| 4 | `npx prisma migration plan --name init` | Writes the first migration (baseline) |
+| 1 | `npm install prisma --save-dev` | Installs the Prisma CLI |
+| 2 | `npm install @prisma/client @prisma/adapter-pg dotenv` | Installs the client, the PostgreSQL driver adapter, and dotenv |
+| 3 | `npx prisma init --datasource-provider postgresql` | Creates `prisma/schema.prisma`, `prisma.config.ts`, and `.env` |
+| 4 | `npx prisma validate` | Checks `schema.prisma` for errors |
+| 5 | `npx prisma migrate dev --name init` | Creates the first migration and applies it to the dev database |
+| 6 | `npx prisma generate` | Generates the Prisma Client |
 
 ---
 
@@ -23,8 +25,9 @@ Prisma ORM 8 CLI. Run from the project root. Commands are listed in the order yo
 |---|---------|--------------|
 | 1 | `npm install` | Installs dependencies |
 | 2 | `cp .env.example .env` | Creates your local env file (then fill in `DATABASE_URL`) |
-| 3 | `npx prisma contract emit` | Regenerates `contract.json` and `contract.d.ts` |
-| 4 | `npx prisma db migrate` | Applies all committed migrations to your empty local database |
+| 3 | `npx prisma migrate deploy` | Applies all committed migrations to your empty local database |
+| 4 | `npx prisma generate` | Generates the Prisma Client |
+| 5 | `npx prisma db seed` | Runs the seed script (if the project has one) |
 
 ---
 
@@ -32,76 +35,78 @@ Prisma ORM 8 CLI. Run from the project root. Commands are listed in the order yo
 
 ### Changing the data model
 
-After editing `contract.prisma`, run these in order:
+After editing `schema.prisma`:
 
 | # | Command | What it does |
 |---|---------|--------------|
-| 1 | `npx prisma contract emit` | Regenerates `contract.json` and `contract.d.ts` |
-| 2 | `npx prisma migration plan --name <change_name>` | Writes a new migration directory for the change |
-| 3 | `npx prisma db migrate --advance-ref db` | Applies pending migrations and updates the `db` ref |
+| 1 | `npx prisma format` | Formats `schema.prisma` |
+| 2 | `npx prisma validate` | Checks `schema.prisma` for errors |
+| 3 | `npx prisma migrate dev --name <change_name>` | Creates a new migration and applies it to the dev database |
+| 4 | `npx prisma generate` | Regenerates the Prisma Client |
 
-Example: `npx prisma migration plan --name add_match_status`
+Example: `npx prisma migrate dev --name add_match_status`
 
 ### After pulling teammates' changes
 
 | Command | What it does |
 |---------|--------------|
-| `npx prisma contract emit` | Regenerates the contract files |
-| `npx prisma db migrate --advance-ref db` | Applies new migrations from the repo to your database |
+| `npx prisma migrate dev` | Applies new migrations from the repo to your dev database |
+| `npx prisma generate` | Regenerates the Prisma Client |
 
 ### Checking state
 
 | Command | What it does |
 |---------|--------------|
-| `npx prisma migration status` | Shows which migrations are pending |
-| `npx prisma migration log` | Shows which migrations have been applied |
-| `npx prisma db verify` | Reports whether the database matches the contract (changes nothing) |
+| `npx prisma migrate status` | Shows which migrations are applied and which are pending |
+| `npx prisma studio` | Opens a browser UI to view and edit data (dev only) |
 
-### Quick experiments (local dev database only)
-
-| Command | What it does |
-|---------|--------------|
-| `npx prisma db update --dry-run` | Shows what would change in the database without applying it |
-| `npx prisma db update` | Applies the contract directly to the database with no migration file |
-
----
-
-## Part 4: Rare / recovery
+### Dev database only
 
 | Command | What it does |
 |---------|--------------|
-| `npx prisma db sign` | Records the current contract hash in a database that already matches it |
-| `npx prisma migration ref set db <migration-dir-or-hash>` | Points the `db` ref at a given contract by hand |
-| `npx prisma db verify --db "$DATABASE_URL"` | Checks a specific database (e.g. in CI) against the contract |
-| `npx prisma db migrate --db "$DATABASE_URL"` | Applies migrations to a specific database (e.g. in CI or deploy) |
+| `npx prisma db seed` | Runs the seed script |
+| `npx prisma migrate reset` | Drops the dev database, reapplies all migrations, and seeds |
+| `npx prisma db push` | Applies `schema.prisma` directly to the database with no migration file |
 
 ---
 
-## CI check
+## Part 4: Production (CI / deploy)
 
-```bash
-npx prisma contract emit
-git diff --exit-code <path-to-contract-folder>
-npx prisma db migrate --db "$DATABASE_URL"
-npx prisma db verify --db "$DATABASE_URL"
-```
+| Command | What it does |
+|---------|--------------|
+| `npx prisma generate` | Generates the Prisma Client during the Docker build |
+| `npx prisma migrate deploy` | Applies pending committed migrations to the production database |
+| `npx prisma migrate status` | Checks the production database against the migration history |
+
+---
+
+## Part 5: Rare / recovery
+
+| Command | What it does |
+|---------|--------------|
+| `npx prisma migrate resolve --applied <migration_name>` | Marks a migration as applied in the history table |
+| `npx prisma migrate resolve --rolled-back <migration_name>` | Marks a failed migration as rolled back |
+| `npx prisma migrate dev --create-only --name <name>` | Creates a migration file without applying it (to edit the SQL first) |
+| `npx prisma db pull` | Writes the existing database structure into `schema.prisma` |
 
 ---
 
 ## Full change workflow (summary)
 
 ```
-edit contract.prisma
-  → npx prisma contract emit
-  → npx prisma migration plan --name <name>
-  → review the new migrations/app/<name>/ directory
-  → npx prisma db migrate --advance-ref db
-  → commit: contract.prisma, contract.json, contract.d.ts, migrations/
+edit schema.prisma
+  → npx prisma migrate dev --name <name>
+  → npx prisma generate
+  → review prisma/migrations/<timestamp>_<name>/migration.sql
+  → commit: schema.prisma, prisma/migrations/
 ```
 
 ## Notes
 
-- The first line of `contract.prisma` must be `// use prisma-8`.
-- Never edit `contract.json` or `contract.d.ts` by hand.
-- Always run `contract emit` before any other command after changing the contract.
-- Prisma ORM 8 may still be in release-candidate status. Check `npx prisma --help` and the official docs if a command behaves differently.
+- Never edit a migration that has already been applied. Create a new one.
+- Never run `migrate dev`, `migrate reset`, or `db push` against production.
+- Do not commit `.env`. Commit `.env.example`.
+- The generated client output is gitignored. Run `npx prisma generate` after cloning, after pulling schema changes, and in the Docker build.
+- In Prisma 7, `migrate dev` does not run `generate` or `db seed` automatically.
+- Prisma 7 reads the database URL from `prisma.config.ts`, not from `schema.prisma`.
+- If a flag or command behaves differently, check `npx prisma --help` and the Prisma 7 docs.
