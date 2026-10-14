@@ -18,7 +18,7 @@ MAGENTA	= \033[35m
 
 .PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
         prod prod-d build-prod down-prod restart-prod logs-prod \
-        down clean fclean test test-e2e lint build-local
+	down clean fclean docker-clean test test-e2e lint build-local
 
 # dev
 dev: build-dev
@@ -80,6 +80,11 @@ fclean: clean
 	$(CMD_DEV) down -v --rmi local 2>/dev/null || true
 	$(CMD_PROD) down -v --rmi local 2>/dev/null || true
 
+docker-clean:
+	@echo "$(YELLOW)Removing all Compose containers, images, networks, and volumes (sudo)…$(RESET)"
+	sudo $(CMD_DEV) down --volumes --rmi all --remove-orphans 2>/dev/null || true
+	sudo $(CMD_PROD) down --volumes --rmi all --remove-orphans 2>/dev/null || true
+
 # tests
 test:
 	@echo "$(CYAN)Running backend unit tests…$(RESET)"
@@ -125,6 +130,7 @@ help:
 	@echo "    $(BOLD)make down$(RESET)         Stop all running project containers"
 	@echo "    $(BOLD)make clean$(RESET)        Stop containers and remove volumes (pgdata)"
 	@echo "    $(BOLD)make fclean$(RESET)       clean + remove project images and orphans"
+	@echo "    $(BOLD)make docker-clean$(RESET) Remove all Compose resources (asks for sudo)"
 	@echo ""
 	@echo "  $(BOLD)$(CYAN)[Local Quality & Tests]$(RESET)"
 	@echo "    $(BOLD)make test$(RESET)         Run backend unit tests locally"
