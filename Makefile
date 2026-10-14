@@ -17,6 +17,7 @@ CYAN	= \033[36m
 MAGENTA	= \033[35m
 
 .PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
+	backend backend-d build-backend \
         prod prod-d build-prod down-prod restart-prod logs-prod \
 	down clean fclean docker-clean test test-e2e lint build-local
 
@@ -41,6 +42,19 @@ restart-dev: down-dev dev
 
 logs-dev:
 	$(CMD_DEV) logs -f
+
+# backend and dependencies
+backend: build-backend
+	@echo "$(GREEN)Starting backend and dependency services…$(RESET)"
+	$(CMD_DEV) up backend
+
+backend-d: build-backend
+	@echo "$(GREEN)Starting backend and dependency services in detached mode…$(RESET)"
+	$(CMD_DEV) up -d backend
+
+build-backend:
+	@echo "$(CYAN)Building backend and dependency images…$(RESET)"
+	$(CMD_DEV) build postgres backend-migrate backend
 
 # prod
 prod: build-prod
@@ -117,6 +131,9 @@ help:
 	@echo "    $(BOLD)make down-dev$(RESET)     Stop dev containers"
 	@echo "    $(BOLD)make restart-dev$(RESET)  Restart dev containers"
 	@echo "    $(BOLD)make logs-dev$(RESET)     Follow dev container logs"
+	@echo "    $(BOLD)make backend$(RESET)       Build and run backend with dependencies"
+	@echo "    $(BOLD)make backend-d$(RESET)     Run backend with dependencies in background"
+	@echo "    $(BOLD)make build-backend$(RESET) Build backend and dependency images"
 	@echo ""
 	@echo "  $(BOLD)$(MAGENTA)[Production Environment]$(RESET)"
 	@echo "    $(BOLD)make prod$(RESET)         Start production containers (attached logs)"
