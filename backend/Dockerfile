@@ -5,6 +5,8 @@ RUN apk add --no-cache openssl
 
 WORKDIR /app
 
+ENV DATABASE_URL=postgresql://user:password@localhost:5432/database
+
 COPY package*.json ./
 
 # Development Stage: Watch mode & dev tools
@@ -15,6 +17,8 @@ ENV NODE_ENV=development
 RUN npm ci
 
 COPY . .
+
+RUN npm run prisma:generate
 
 EXPOSE 3000
 
@@ -27,6 +31,7 @@ RUN npm ci
 
 COPY . .
 
+RUN npm run prisma:generate
 RUN npm run build
 
 # Production Stage: Minimal hardened runtime
