@@ -32,6 +32,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    command: sh -c "npm run prisma:generate && npm run start:dev"
 
   backend-migrate:
     env_file:
@@ -39,6 +40,7 @@ services:
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: npm run prisma:migrate
 
   frontend:
     build:
