@@ -22,7 +22,7 @@ RUN npm run prisma:generate
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:dev"]
+# CMD ["npm", "run", "start:dev"]
 
 # Build Stage: Compile TypeScript to JS
 FROM base AS build

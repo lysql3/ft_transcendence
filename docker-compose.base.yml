@@ -33,7 +33,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: npm run prisma:migrate:deploy
     networks:
       - ft_tra_networks
 
