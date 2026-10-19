@@ -105,8 +105,9 @@ test:
 	cd backend && npm test
 
 test-e2e:
-	@echo "$(CYAN)Running backend e2e tests…$(RESET)"
-	cd backend && npm run test:e2e
+	cp .env.dev backend/.env
+	@echo "Running backend e2e tests..."
+	cd backend && DATABASE_URL=postgresql://user:devpassword@localhost:5432/transcendence_dev npm run test:e2e
 
 lint:
 	@echo "$(CYAN)Linting backend…$(RESET)"

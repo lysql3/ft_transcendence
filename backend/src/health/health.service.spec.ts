@@ -1,52 +1,28 @@
-import { Pool } from 'pg';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { HealthService } from './health.service.js';
 
 describe('HealthService', () => {
-  it('creates the probe table and inserts a value', async () => {
-    const database = {
-      query: vi
-        .fn()
-        .mockResolvedValueOnce({ rows: [] })
-        .mockResolvedValueOnce({ rows: [{ id: 3, created_at: 'now' }] }),
-      end: vi.fn(),
-    } as unknown as Pool;
-    const service = new HealthService(database);
+  it('returns database status when Prisma can query users', async () => {
+    const prisma = {
+      user: {
+        count: vi.fn().mockResolvedValue(0),
+      },
+    } as unknown as PrismaService;
+    const service = new HealthService(prisma);
 
-    await expect(service.checkDatabase()).resolves.toEqual({
-      status: 'ok',
-      id: 3,
-      createdAt: 'now',
-    });
+    await expect(service.check()).resolves.toEqual({ db: 'ok' });
 
-    expect(database.query).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining('CREATE TABLE IF NOT EXISTS health_db_probe'),
-    );
-    expect(database.query).toHaveBeenNthCalledWith(
-      2,
-      'INSERT INTO health_db_probe DEFAULT VALUES RETURNING id, created_at',
-    );
+    expect(prisma.user.count).toHaveBeenCalledOnce();
   });
 
-  it('drops and recreates the probe table when reset', async () => {
-    const database = {
-      query: vi.fn().mockResolvedValue({ rows: [] }),
-      end: vi.fn(),
-    } as unknown as Pool;
-    const service = new HealthService(database);
+  it('propagates database errors', async () => {
+    const prisma = {
+      user: {
+        count: vi.fn().mockRejectedValue(new Error('database unavailable')),
+      },
+    } as unknown as PrismaService;
+    const service = new HealthService(prisma);
 
-    await expect(service.resetDatabase()).resolves.toEqual({
-      status: 'ok',
-      reset: true,
-    });
-
-    expect(database.query).toHaveBeenNthCalledWith(
-      1,
-      'DROP TABLE IF EXISTS health_db_probe',
-    );
-    expect(database.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining('CREATE TABLE health_db_probe'),
-    );
+    await expect(service.check()).rejects.toThrow('database unavailable');
   });
 });
