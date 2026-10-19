@@ -27,7 +27,7 @@ export const NavBar = ({
     }`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-bg/70 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-line bg-bg/10 backdrop-blur-[3px]">
       <nav
         aria-label="Main"
         className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3"
