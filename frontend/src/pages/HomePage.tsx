@@ -1,10 +1,14 @@
-import { Button } from "../components/ui/Button";
+import { NavBar } from "../components/layout/NavBar";
 
 function HomePage() {
   return (
     <>
-      <Button variant="outline" content="LOGIN" />
-      <Button content="SIGNIN" />
+      <NavBar
+        links={[{ label: "Home", href: "/" }]}
+        homeHref="/"
+        activePath="/"
+      />
+      
     </>
   );
 }
