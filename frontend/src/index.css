@@ -1,1 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 @import "tailwindcss";
+
+:root,
+[data-theme="matrix-dark"] {
+  color-scheme: dark;
+  --bg-primary: #000000;
+  --bg-secondary: #051405;
+  --bg-tertiary: #0a1f0a;
+  --text-primary: #ffffff;
+  --text-muted: #7fa07f;
+  --accent: #00ff41;
+  --accent-text: #00ff41;
+  --on-accent: #000000;
+  --border: #003b00;
+  --logo-text: #ffffff;
+}
+
+@theme inline {
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-bg: var(--bg-primary);
+  --color-surface: var(--bg-secondary);
+  --color-fg: var(--text-primary);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-on-accent: var(--on-accent);
+  --color-line: var(--border);
+  --color-logo: var(--logo-text);
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-fg font-mono;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+}
