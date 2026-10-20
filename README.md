@@ -1,5 +1,5 @@
 # ft_transcendence
-
+work in progress
 A modern full-stack application built with **NestJS**, **React + Tailwind CSS (Vite)**, and **PostgreSQL**, managed by multi-stage Docker containerization and orchestrated via Docker Compose.
 
 ---
