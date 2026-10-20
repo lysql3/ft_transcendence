@@ -5,25 +5,14 @@ import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { UsersModule } from './users/users.module.js';
 import { LoggerModule } from 'nestjs-pino';
-import { randomUUID } from 'crypto';
+import { loggerConfig } from './logger.config.js';
 
 @Module({
   imports: [
     HealthModule,
     PrismaModule,
     UsersModule,
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: process.env.LOG_LEVEL || 'info',
-        timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
-
-        genReqId: (_req, res) => {
-          const id = randomUUID();
-          res.setHeader('X-Request-Id', id);
-          return id;
-        },
-      },
-    }),
+    LoggerModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],
   providers: [AppService],
