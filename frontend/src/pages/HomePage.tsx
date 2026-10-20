@@ -1,15 +1,16 @@
 import { NavBar } from "../components/layout/NavBar";
+import { MatrixRain } from "../components/ui/MatrixRain";
 
 function HomePage() {
   return (
-    <>
+    <div>
+      <MatrixRain />
       <NavBar
-        links={[{ label: "Home", href: "/" }]}
+        links={[]}
         homeHref="/"
         activePath="/"
       />
-      
-    </>
+    </div>
   );
 }
 

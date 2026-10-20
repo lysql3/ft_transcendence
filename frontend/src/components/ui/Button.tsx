@@ -13,26 +13,21 @@ const base =
   "disabled:cursor-not-allowed disabled:opacity-50";
 
 const variants = {
-  solid: "bg-accent text-on-accent hover:bg-transparent hover:text-accent-text",
-  outline:
-    "bg-transparent text-accent-text hover:bg-accent hover:text-on-accent",
+  solid: "bg-accent text-on-accent hover:bg-bg hover:text-accent-text",
+  outline: "bg-bg text-accent-text hover:bg-accent hover:text-on-accent",
 };
 
-export const Button = ({
+export function Button({
   variant = "solid",
   content,
   children,
   className = "",
   type = "button",
   ...rest
-}: ButtonProps) => {
+}: ButtonProps) {
   return (
-    <button
-      type={type}
-      className={`${base} ${variants[variant]} ${className}`}
-      {...rest}
-    >
-      {content ?? children}
+    <button type={type} className={`${base} ${variants[variant]} ${className}`} {...rest}>
+      {children ?? content}
     </button>
   );
-};
+}
