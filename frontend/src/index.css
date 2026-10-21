@@ -48,6 +48,7 @@
 
   --color-bg: var(--bg-primary);
   --color-surface: var(--bg-secondary);
+  --color-overlay: var(--bg-tertiary);
   --color-fg: var(--text-primary);
   --color-muted: var(--text-muted);
   --color-accent: var(--accent);
