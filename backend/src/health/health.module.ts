@@ -1,17 +1,11 @@
 import { Module } from '@nestjs/common';
 import { HealthController } from './health.controller.js';
-import { DATABASE_POOL, HealthService } from './health.service.js';
-import { Pool } from 'pg';
+import { HealthService } from './health.service.js';
+import { PrismaModule } from '../prisma/prisma.module.js';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [HealthController],
-  providers: [
-    {
-      provide: DATABASE_POOL,
-      useFactory: () =>
-        new Pool({ connectionString: process.env.DATABASE_URL }),
-    },
-    HealthService,
-  ],
+  providers: [HealthService],
 })
 export class HealthModule {}

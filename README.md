@@ -14,7 +14,7 @@ The application is structured into modular microservices communicating across an
                      │                                        │
 ┌────────────────┐   │   ┌────────────────────────────────┐   │
 │  User Browser  │───┼──>│ frontend (Vite dev / Nginx)    │   │
-└────────────────┘   │   │  Dev: :5173  | Prod: :80       │   │
+└────────────────┘   │   │  Dev: :5173  | Prod: :443      │   │
                      │   └──────────────┬─────────────────┘   │
                      │                  │ /api proxy          │
                      │                  ▼                     │
@@ -54,7 +54,7 @@ The application is structured into modular microservices communicating across an
 - **Stages:**
   - `dev`: Vite HMR dev server on port `5173`, bind-mounted `./frontend:/app` for instant hot module reloading. Proxies `/api` requests to `http://backend:3000`.
   - `build`: Generates optimized static bundle (`npm run build` -> `/app/dist`).
-  - `prod`: Ultra-lightweight `nginx:alpine` serving static assets, handles client-side SPA routing (`try_files $uri /index.html`), and reverse-proxies `/api/` to `http://backend:3000`.
+  - `prod`: `nginx:alpine` serving static assets over HTTPS with a self-signed certificate generated during image build, handles client-side SPA routing (`try_files $uri /index.html`), and reverse-proxies `/api/` to `http://backend:3000`.
 
 ---
 
@@ -78,7 +78,7 @@ POSTGRES_DB=transcendence_dev              # Database name
 POSTGRES_PORT=5432                         # Host port for database (dev only)
 PORT=3000                                  # Backend port
 DATABASE_URL=postgresql://...              # Full connection string
-FRONTEND_PORT=5173                         # Dev port (5173) or Prod port (80)
+FRONTEND_PORT=5173                         # Dev port (5173) or Prod port (443)
 BACKEND_URL=http://backend:3000            # Backend target for frontend reverse proxy
 ```
 
@@ -132,8 +132,9 @@ make logs-prod
 make down-prod
 ```
 
-- **Application (Nginx):** Visit `http://localhost:80` (or configured `FRONTEND_PORT`)
-- **API Endpoint:** Visit `http://localhost:80/api/health`
+- **Application (Nginx):** Visit `https://localhost:443` (or configured `FRONTEND_PORT`); accept the self-signed certificate warning
+- **API Endpoint:** Visit `https://localhost:443/api/health`
+- **Proxy check:** Visit `https://localhost:443/api/whoami` to inspect the trusted client IP, protocol, and secure flag
 
 ---
 
