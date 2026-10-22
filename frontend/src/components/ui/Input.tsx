@@ -21,22 +21,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const isPassword = type === "password";
 
   const frame = error
-    ? "border-red-500 focus-within:shadow-[0_0_14px_-4px_#ef4444]"
-    : "border-line hover:border-accent/60 focus-within:border-accent focus-within:shadow-[0_0_14px_-4px_var(--accent)]";
+    ? "border-destructive focus-within:shadow-[0_0_14px_-4px_var(--destructive)]"
+    : "border-border hover:border-accent/60 focus-within:border-accent focus-within:shadow-glow";
 
   return (
     <div className={`flex flex-col gap-1.5 ${wrapperClassName}`}>
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-semibold uppercase tracking-wider text-muted"
+          className="text-xs font-semibold uppercase tracking-ui text-muted-foreground"
         >
           {label}
         </label>
       )}
 
       <div
-        className={`flex items-center border bg-overlay/90 transition-[border-color,box-shadow] duration-200 ${frame} ${
+        className={`flex items-center border bg-card/90 rounded-ui transition-[border-color,box-shadow] duration-200 ease-ui ${frame} ${
           disabled ? "cursor-not-allowed opacity-50" : ""
         }`}
       >
@@ -47,7 +47,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           disabled={disabled}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : hint ? hintId : undefined}
-          className={`w-full min-w-0 bg-transparent px-3 py-2 text-sm text-fg caret-accent outline-none placeholder:text-muted disabled:cursor-not-allowed autofill:shadow-[inset_0_0_0_1000px_var(--bg-secondary)] autofill:[-webkit-text-fill-color:var(--text-primary)] ${className}`}
+          className={`w-full min-w-0 bg-transparent px-3 py-2 text-sm text-foreground caret-accent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed autofill:shadow-[inset_0_0_0_1000px_var(--color-card)] autofill:[-webkit-text-fill-color:var(--color-foreground)] ${className}`}
           {...props}
         />
 
@@ -58,7 +58,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             aria-label={showPassword ? "Hide password" : "Show password"}
             aria-pressed={showPassword}
             disabled={disabled}
-            className="shrink-0 cursor-pointer px-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:text-accent-text disabled:cursor-not-allowed"
+            className="shrink-0 cursor-pointer px-3 text-xs font-semibold uppercase tracking-ui text-muted-foreground transition-colors hover:text-accent disabled:cursor-not-allowed"
           >
             {showPassword ? "Hide" : "Show"}
           </button>
@@ -66,11 +66,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
 
       {error ? (
-        <p id={errorId} role="alert" className="text-xs text-red-500">
+        <p id={errorId} role="alert" className="text-xs text-destructive">
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="text-xs text-muted">
+        <p id={hintId} className="text-xs text-muted-foreground">
           {hint}
         </p>
       ) : null}
