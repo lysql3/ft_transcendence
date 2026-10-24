@@ -29,10 +29,10 @@ const DEFAULT_CONFIG: MatrixRainConfig = {
   bgColor: "#000000", 
   trailFade: 0.32,
   trailLength: 1,
-  color: "#AFFF33",
-  headColor: "#EFFFD0",
+  color: "#00ff41",
+  headColor: "#ffffff",
   chars: "01",
-  font: '"MS Gothic","Noto Sans Mono CJK JP","Hiragino Kaku Gothic Pro",monospace',
+  font: '"JetBrains Mono", ui-monospace, monospace',
   mutation: 0.35,
   layers: [
     {
@@ -95,9 +95,9 @@ const hexToRgb = (hex: string): [number, number, number] => {
 
 export function MatrixRain({
   className = "pointer-events-none fixed inset-0 -z-10 h-screen w-screen",
-  bgClass = "bg-[var(--bg-primary)]",
-  colorClass = "text-[var(--accent)]",
-  headClass = "text-[var(--text-primary)]",
+  bgClass = "bg-background",
+  colorClass = "text-accent",
+  headClass = "text-foreground",
   ...overrides
 }: MatrixRainProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -105,8 +105,6 @@ export function MatrixRain({
   const mainProbe = useRef<HTMLSpanElement>(null);
   const headProbe = useRef<HTMLSpanElement>(null);
 
-  
-  
   const configKey = JSON.stringify(overrides);
 
   useEffect(() => {
@@ -120,8 +118,6 @@ export function MatrixRain({
     const parsed = JSON.parse(configKey) as Partial<MatrixRainConfig>;
     const CONFIG: MatrixRainConfig = { ...DEFAULT_CONFIG, ...parsed };
 
-    
-    
     const tryParse = (v: string): [number, number, number] | null => {
       if (!v) return null;
       ctx.fillStyle = "#010203";
@@ -137,8 +133,6 @@ export function MatrixRain({
       return null;
     };
 
-    
-    
     const warned = new Set<string>();
     const parseColor = (value: string, fallback: string, label: string) => {
       const rgb = tryParse(value);
@@ -159,8 +153,6 @@ export function MatrixRain({
     let neck: number[] = bg;
     let colorKey = "";
 
-    
-    
     const readColors = () => {
       bg = parseColor(
         parsed.bgColor ?? getComputedStyle(bgEl).backgroundColor,
@@ -253,8 +245,6 @@ export function MatrixRain({
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
 
-      
-      
       if (now - lastColorCheck > 250) {
         lastColorCheck = now;
         if (readColors()) {
@@ -316,8 +306,6 @@ export function MatrixRain({
       last = performance.now();
     };
 
-    
-    
     const observer = new MutationObserver(() => {
       if (readColors()) {
         ctx.fillStyle = `rgb(${bg})`;
@@ -335,8 +323,6 @@ export function MatrixRain({
     resize();
     raf = requestAnimationFrame(frame);
 
-    
-    
     return () => {
       cancelAnimationFrame(raf);
       observer.disconnect();
@@ -348,8 +334,7 @@ export function MatrixRain({
   return (
     <>
       <canvas ref={canvasRef} className={className} aria-hidden="true" />
-      {/* Hidden probes: Tailwind resolves your theme classes on these, and the
-          animation reads the resulting colors. They are never shown. */}
+      {/* Hidden probes: Tailwind resolves your theme classes on these for the canvas */}
       <div className="hidden" aria-hidden="true">
         <span ref={bgProbe} className={bgClass} />
         <span ref={mainProbe} className={colorClass} />
