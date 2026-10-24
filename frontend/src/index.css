@@ -1,25 +1,34 @@
-/* Font import must come BEFORE tailwind, otherwise browsers ignore it. */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:is([data-theme="matrix-dark"], [data-theme="cyberpunk"], [data-theme="matrix-dark"] *, [data-theme="cyberpunk"] *));
 
 :root {
   /* layout */
-  --gutter: 1rem;          
-  --section: 4rem;         
-  --container: 72rem;      
+  --gutter: 1rem;
+  --section: 4rem;
+  --container: 72rem;
 
   /* typography */
-  --tracking: 0.05em;      
+  --tracking: 0.05em;
 
   /* motion */
-  --duration: 200ms;       
+  --duration: 200ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* component spacing */
+  --pad-control-x: 1rem;
+  --pad-control-y: 0.5rem;
+  --pad-card: 1.5rem;
+  --gap-stack: 1rem;
+  --gap-inline: 0.75rem;
 }
 
 @media (min-width: 48rem) {
-  :root { --gutter: 1.5rem; --section: 6rem; }
+  :root {
+    --gutter: 1.5rem;
+    --section: 6rem;
+  }
 }
 
 :root,
@@ -39,6 +48,9 @@
   --logo-text: #ffffff;
   --danger: #ff3b3b;
   --on-danger: #000000;
+  --success: #00ff41;
+  --warning: #ffb000;
+  --info: #3bc9ff;
 
   --radius: 0px;
   --blur: 4px;
@@ -61,6 +73,9 @@
   --logo-text: #051405;
   --danger: #c62828;
   --on-danger: #ffffff;
+  --success: #15803d;   /* added: darker status colors readable on a pale background */
+  --warning: #b45309;
+  --info: #0369a1;
 
   --radius: 4px;
   --blur: 8px;
@@ -83,6 +98,9 @@
   --logo-text: #ffffff;
   --danger: #ff5c33;
   --on-danger: #0d0221;
+  --success: #00ff9f;   /* added */
+  --warning: #ffd400;
+  --info: #5ab0ff;
 
   --radius: 0px;
   --blur: 12px;
@@ -103,15 +121,19 @@
   --color-primary-foreground: var(--on-accent);
   --color-secondary: var(--bg-tertiary);
   --color-secondary-foreground: var(--text-primary);
-  --color-muted: var(--bg-tertiary);          
-  --color-muted-foreground: var(--text-muted); 
-  --color-accent: var(--accent);              
+  --color-muted: var(--bg-tertiary);
+  --color-muted-foreground: var(--text-muted);
+  --color-accent: var(--accent);
   --color-accent-foreground: var(--on-accent);
   --color-destructive: var(--danger);
   --color-destructive-foreground: var(--on-danger);
   --color-border: var(--border);
   --color-input: var(--border);
   --color-ring: var(--accent);
+  --color-logo: var(--logo-text);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
 
   --radius-ui: var(--radius);
   --radius-sm: max(0px, calc(var(--radius) - 4px));
@@ -119,23 +141,42 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --shadow-glow: var(--glow-box);              
-  --text-shadow-glow: var(--glow-text);        
-  --blur-glass: var(--blur);                   
+  --shadow-glow: var(--glow-box);
+  --text-shadow-glow: var(--glow-text);
+  --blur-glass: var(--blur);
 
-  --spacing-gutter: var(--gutter);             
-  --spacing-section: var(--section);           
-  --container-page: var(--container);          
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section);
+  --container-page: var(--container);
 
-  --tracking-ui: var(--tracking);              
-  --ease-ui: var(--ease);                      
+  /* added: these create px-control-x, py-control-y, p-card, gap-stack, gap-inline */
+  --spacing-control-x: var(--pad-control-x);
+  --spacing-control-y: var(--pad-control-y);
+  --spacing-card: var(--pad-card);
+  --spacing-stack: var(--gap-stack);
+  --spacing-inline: var(--gap-inline);
+
+  --tracking-ui: var(--tracking);
+  --ease-ui: var(--ease);
 }
 
 @layer base {
   body {
     @apply bg-background text-foreground font-mono;
-    transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+    transition:
+      background-color var(--duration) var(--ease),
+      color var(--duration) var(--ease);
   }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
 
   /* Neon text selection highlight */
   ::selection {

@@ -21,7 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const isPassword = type === "password";
 
   const frame = error
-    ? "border-destructive focus-within:shadow-[0_0_14px_-4px_var(--destructive)]"
+    ? "border-destructive focus-within:shadow-[0_0_14px_-4px_var(--danger)]"
     : "border-border hover:border-accent/60 focus-within:border-accent focus-within:shadow-glow";
 
   return (
@@ -29,14 +29,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-semibold uppercase tracking-ui text-muted-foreground"
+          className="text-xs font-semibold uppercase tracking-ui"
         >
           {label}
         </label>
       )}
 
       <div
-        className={`flex items-center border bg-card/90 rounded-ui transition-[border-color,box-shadow] duration-200 ease-ui ${frame} ${
+        className={`flex items-center border bg-card/90 rounded-ui transition-[border-color,box-shadow] duration-(--duration) ease-ui ${frame} ${
           disabled ? "cursor-not-allowed opacity-50" : ""
         }`}
       >

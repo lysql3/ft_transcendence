@@ -1,5 +1,6 @@
 import type { ElementType, HTMLAttributes, ReactNode } from "react";
 
+
 type CardVariant = "glass" | "solid" | "outline" | "flat";
 type CardPadding = "none" | "sm" | "md" | "lg";
 
@@ -52,7 +53,7 @@ export function Card({
   return (
     <Tag
       className={cx(
-        "relative border border-border rounded-ui transition-[transform,border-color,box-shadow] duration-200 ease-ui",
+        "relative border border-border rounded-ui transition-[transform,border-color,box-shadow] duration-(--duration) ease-ui",
         variants[variant],
         paddings[padding],
         interactive && interactiveStyles,

@@ -1,4 +1,4 @@
-import { LoginForm } from "@/features/auth/components/LoginForm"
+import { LoginForm } from "@/features/auth/components/SignUpForm"
 import { MatrixRain } from "@/components/ui/MatrixRain"
 
 export default function SignInPage() {

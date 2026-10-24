@@ -1,5 +1,5 @@
 import HomePage from "./pages/HomePage";
-import SignInPage from "./pages/SignInPage";
+import SignInPage from "./pages/SignUpPage";
 
 function App() {
   return (

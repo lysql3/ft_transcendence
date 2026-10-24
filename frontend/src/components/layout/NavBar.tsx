@@ -23,12 +23,12 @@ export const NavBar = ({
       : activePath === href || activePath.startsWith(href + "/");
 
   const linkClass = (href: string) =>
-    `text-sm font-medium transition-colors hover:text-accent ${
+    `text-sm font-medium transition-colors duration-(--duration) ease-ui hover:text-accent ${
       isActive(href) ? "text-accent" : "text-foreground"
     }`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/20 backdrop-blur-glass transition-colors duration-200">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/20 backdrop-blur-glass transition-colors duration-(--duration) ease-ui">
       <nav
         aria-label="Main"
         className="mx-auto flex max-w-page items-center justify-between gap-gutter px-gutter py-4"
