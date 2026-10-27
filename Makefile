@@ -24,11 +24,15 @@ MAGENTA	= \033[35m
 # dev
 dev: build-dev
 	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
-	$(CMD_DEV) up
+	$(CMD_DEV) up -d postgres adminer
+	$(CMD_DEV) run --rm backend-migrate
+	$(CMD_DEV) up --no-deps backend frontend
 
 dev-d: build-dev
 	@echo "$(GREEN)Starting development environment in detached mode…$(RESET)"
-	$(CMD_DEV) up -d
+	$(CMD_DEV) up -d postgres adminer
+	$(CMD_DEV) run --rm backend-migrate
+	$(CMD_DEV) up -d --no-deps backend frontend
 
 build-dev:
 	@echo "$(CYAN)Building dev images (target: dev)…$(RESET)"
@@ -43,27 +47,47 @@ restart-dev: down-dev dev
 logs-dev:
 	$(CMD_DEV) logs -f
 
-# backend and dependencies
+# postres and backend and dependencies
 backend: build-backend
 	@echo "$(GREEN)Starting backend and dependency services…$(RESET)"
-	$(CMD_DEV) up backend
+	$(CMD_DEV) up -d postgres
+	$(CMD_DEV) run --rm backend-migrate
+	$(CMD_DEV) up --no-deps backend
 
 backend-d: build-backend
 	@echo "$(GREEN)Starting backend and dependency services in detached mode…$(RESET)"
-	$(CMD_DEV) up -d backend
+	$(CMD_DEV) up -d postgres
+	$(CMD_DEV) run --rm backend-migrate
+	$(CMD_DEV) up -d --no-deps backend
 
 build-backend:
 	@echo "$(CYAN)Building backend and dependency images…$(RESET)"
 	$(CMD_DEV) build postgres backend-migrate backend
 
+postgres: build-postgres
+	@echo "$(GREEN)Starting postgres and dependency services…$(RESET)"
+	$(CMD_DEV) up postgres
+
+postgres-d: build-postgres
+	@echo "$(GREEN)Starting postgres and dependency services in detached mode…$(RESET)"
+	$(CMD_DEV) up -d postgres
+
+build-postgres:
+	@echo "$(CYAN)Building postgres and dependency images…$(RESET)"
+	$(CMD_DEV) build postgres backend-migrate
+
 # prod
 prod: build-prod
 	@echo "$(MAGENTA)Starting production environment…$(RESET)"
-	$(CMD_PROD) up
+	$(CMD_PROD) up -d postgres
+	$(CMD_PROD) run --rm backend-migrate
+	$(CMD_PROD) up --no-deps backend frontend
 
 prod-d: build-prod
 	@echo "$(MAGENTA)Starting production environment in detached mode…$(RESET)"
-	$(CMD_PROD) up -d
+	$(CMD_PROD) up -d postgres
+	$(CMD_PROD) run --rm backend-migrate
+	$(CMD_PROD) up -d --no-deps backend frontend
 
 build-prod:
 	@echo "$(CYAN)Building production images (target: prod)…$(RESET)"

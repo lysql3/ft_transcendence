@@ -40,7 +40,7 @@ services:
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    command: npm run prisma:migrate
+    command: npm run prisma:migrate:deploy
 
   frontend:
     build:
