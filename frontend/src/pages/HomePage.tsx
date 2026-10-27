@@ -6,7 +6,6 @@ import {
   CardDescription,
   CardHeader,
 } from "../components/ui/Card";
-import { LoginForm } from "../features/auth/components/SignUpForm";
 
 function HomePage() {
   return (
@@ -34,9 +33,6 @@ function HomePage() {
             </CardDescription>
           </CardContent>
         </Card>
-      </div>
-      <div className="relative flex justify-center">
-        <LoginForm className="" />
       </div>
     </div>
   );

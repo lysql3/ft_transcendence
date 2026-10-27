@@ -1,76 +1,114 @@
-import { Card, CardHeader, CardContent } from "../../../components/ui/Card";
-import { Input } from "../../../components/ui/Input";
-import { Logo } from "../../../components/ui/Logo";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema } from "@/features/auth/schemas/auth";
 
-export const LoginForm = ({ className }: { className?: string }) => {
+const linkClass =
+  "text-accent underline underline-offset-4 transition-colors duration-(--duration) hover:text-accent/80";
+
+export const SignUpForm = ({ className }: { className?: string }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    mode: "onBlur",
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = async (data: any) => {
+    console.log("Form submitted successfully:", data);
+  };
+
   return (
-    <Card variant="solid" corners className={className}>
+    // flex-col lets this card stretch to the same height as its neighbour
+    <Card variant="solid" corners className={`flex flex-col ${className ?? ""}`}>
       <CardHeader className="flex items-center justify-center pb-2">
         <Logo />
       </CardHeader>
-      <CardContent>
-        <form className="flex flex-col gap-4">
+
+      <CardContent className="flex-1">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
           <Input
             label="Username:"
             type="text"
             id="username"
-            name="username"
+            autoComplete="username"
             placeholder="Enter your username"
-            required
+            {...register("username")}
+            error={errors.username?.message as string}
           />
 
           <Input
             label="Email:"
             type="email"
             id="email"
-            name="email"
+            autoComplete="email"
             placeholder="Enter your email"
-            required
-            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+            {...register("email")}
+            error={errors.email?.message as string}
           />
 
           <Input
             label="Password:"
             type="password"
             id="password"
-            name="password"
+            autoComplete="new-password"
             placeholder="Enter your password"
-            required
+            {...register("password")}
+            error={errors.password?.message as string}
           />
 
           <Input
             label="Confirm Password:"
             type="password"
             id="confirmPassword"
-            name="confirmPassword"
+            autoComplete="new-password"
             placeholder="Confirm your password"
-            required
+            {...register("confirmPassword")}
+            error={errors.confirmPassword?.message as string}
           />
 
-          <div className="flex items-center gap-2 pt-1">
-            <input
-              type="checkbox"
-              id="terms"
-              name="terms"
-              required
-              className="h-4 w-4 rounded-ui border-border bg-card accent-accent cursor-pointer"
-            />
-            <label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer select-none">
-              I agree to the{" "}
-              <a href="/terms" className="underline text-accent hover:text-accent/80 transition-colors">
-                terms and conditions
-              </a>
-            </label>
+          {/* Terms checkbox and its error */}
+          <div className="flex flex-col gap-1 pt-1">
+            <div className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                id="terms"
+                {...register("terms")}
+                className="mt-0.5 size-4 shrink-0 cursor-pointer rounded-ui border-border bg-card accent-accent"
+              />
+              <label htmlFor="terms" className="cursor-pointer select-none text-xs text-muted-foreground">
+                I agree to the{" "}
+                <a href="/terms" className={linkClass}>
+                  terms and conditions
+                </a>
+              </label>
+            </div>
+            {errors.terms?.message && (
+              <p role="alert" className="text-xs text-destructive">
+                {errors.terms.message as string}
+              </p>
+            )}
           </div>
 
-          <div className="flex justify-center mt-2">
-            <Button type="submit" variant="solid" className="w-full">
-              SIGN UP
-            </Button>
-          </div>
+          <Button type="submit" variant="solid" size="lg" loading={isSubmitting} className="mt-2 w-full">
+            Sign up
+          </Button>
         </form>
       </CardContent>
+
+      <CardFooter className="flex justify-center pt-4">
+        <p className="text-center text-xs text-muted-foreground">
+          Already have an account?{" "}
+          <a href="/login" className={linkClass}>
+            Log in
+          </a>
+        </p>
+      </CardFooter>
     </Card>
   );
 };
