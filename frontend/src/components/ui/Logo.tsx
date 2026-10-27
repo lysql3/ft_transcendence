@@ -23,7 +23,7 @@ export const Logo = ({
     <span
       role="img"
       aria-label={name}
-      className={`inline-flex select-none items-center whitespace-nowrap font-bold tracking-wider ${sizes[size]} ${className}`}
+      className={`inline-flex select-none items-center whitespace-nowrap font-bold tracking-ui ${sizes[size]} ${className}`}
       {...rest}
     >
       <span aria-hidden="true" className="text-logo">
@@ -31,7 +31,7 @@ export const Logo = ({
       </span>
       <span
         aria-hidden="true"
-        className="text-accent [text-shadow:0_0_8px_var(--accent),0_0_20px_var(--accent)] "
+        className="text-accent text-shadow-glow"
       >
         /
       </span>

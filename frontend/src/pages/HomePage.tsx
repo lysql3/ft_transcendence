@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardHeader,
 } from "../components/ui/Card";
-import { LoginForm } from "../features/auth/components/LoginForm";
+import { LoginForm } from "../features/auth/components/SignUpForm";
 
 function HomePage() {
   return (
