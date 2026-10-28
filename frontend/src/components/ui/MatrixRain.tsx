@@ -24,8 +24,8 @@ export type MatrixRainConfig = {
 };
 
 const DEFAULT_CONFIG: MatrixRainConfig = {
-  speed: 1,
-  density: 1,
+  speed: 0.5,
+  density: 0.3,
   bgColor: "#000000", 
   trailFade: 0.32,
   trailLength: 1,
