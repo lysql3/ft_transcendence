@@ -1,11 +1,78 @@
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import { MatrixRain } from "@/components/ui/MatrixRain";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/Card";
+
+function WelcomeBackCard() {
+  return (
+    <Card
+      variant="solid"
+      corners
+      className="order-2 flex flex-col lg:order-1 max-w-md"
+    >
+      <CardHeader>
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs tracking-widest text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="size-2 rounded-full bg-accent shadow-[0_0_10px_var(--accent)] animate-pulse"
+            />
+            <span>PLAYER AUTHENTICATION</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="hidden h-px w-10 bg-border sm:block"
+            />
+            <span>SECURE</span>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1">
+        <h1 className="text-4xl font-extrabold uppercase leading-none tracking-tight text-foreground sm:text-8xl">
+          WELCOME
+          <span className="mt-2 block text-accent">BACK.</span>
+        </h1>
+        <p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
+          Log in to your account to continue climbing the leaderboard and
+          dominating the arena.
+        </p>
+      </CardContent>
+      <CardFooter>
+        {" "}
+        <div className="flex items-center gap-3 font-mono text-xs tracking-widest">
+          <div className="flex items-end gap-1 h-4" aria-hidden="true">
+            <span className="w-1 bg-accent/40 h-1.5 rounded-xs" />
+            <span className="w-1 bg-accent/60 h-2.5 rounded-xs" />
+            <span className="w-1 bg-accent/80 h-3.5 rounded-xs" />
+            <span className="w-1 bg-accent h-4 rounded-xs shadow-[0_0_8px_var(--accent)]" />
+          </div>
+
+          {/* Status Text */}
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">ARENA ACCESS</span>
+            <span className="text-accent font-bold drop-shadow-[0_0_8px_rgba(0,255,102,0.3)]">
+              READY
+            </span>
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <main className="flex min-h-dvh items-center justify-center px-gutter py-8">
       <MatrixRain />
-      <LoginForm className="w-full max-w-md" />
-    </div>
+      <div className="grid w-full max-w-4xl grid-cols-1 gap-gutter justify-items-center lg:justify-items-stretch lg:grid-cols-2">
+        <WelcomeBackCard />
+        <LoginForm className="order-1 lg:order-2 max-w-md w-full" />
+      </div>
+    </main>
   );
 }

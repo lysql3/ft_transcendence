@@ -1,10 +1,19 @@
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "@/features/auth/schemas/auth";
+import {
+  RegisterSchema,
+  type RegisterFormData,
+} from "@/features/auth/schemas/auth";
+import { Link } from "react-router-dom";
 
 const linkClass =
   "text-accent underline underline-offset-4 transition-colors duration-(--duration) hover:text-accent/80";
@@ -13,25 +22,33 @@ export const SignUpForm = ({ className }: { className?: string }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm({
+    formState: { errors, isSubmitting , isValid },
+  } = useForm<RegisterFormData>({
     mode: "onBlur",
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(RegisterSchema),
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: RegisterFormData) => {
     console.log("Form submitted successfully:", data);
   };
 
   return (
     // flex-col lets this card stretch to the same height as its neighbour
-    <Card variant="solid" corners className={`flex flex-col ${className ?? ""}`}>
+    <Card
+      variant="solid"
+      corners
+      className={`flex flex-col ${className ?? ""}`}
+    >
       <CardHeader className="flex items-center justify-center pb-2">
         <Logo />
       </CardHeader>
 
       <CardContent className="flex-1">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-4"
+        >
           <Input
             label="Username:"
             type="text"
@@ -72,7 +89,6 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             error={errors.confirmPassword?.message as string}
           />
 
-          {/* Terms checkbox and its error */}
           <div className="flex flex-col gap-1 pt-1">
             <div className="flex items-start gap-2">
               <input
@@ -81,7 +97,10 @@ export const SignUpForm = ({ className }: { className?: string }) => {
                 {...register("terms")}
                 className="mt-0.5 size-4 shrink-0 cursor-pointer rounded-ui border-border bg-card accent-accent"
               />
-              <label htmlFor="terms" className="cursor-pointer select-none text-xs text-muted-foreground">
+              <label
+                htmlFor="terms"
+                className="cursor-pointer select-none text-xs text-muted-foreground"
+              >
                 I agree to the{" "}
                 <a href="/terms" className={linkClass}>
                   terms and conditions
@@ -95,7 +114,14 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             )}
           </div>
 
-          <Button type="submit" variant="solid" size="lg" loading={isSubmitting} className="mt-2 w-full">
+          <Button
+            type="submit"
+            variant="solid"
+            size="lg"
+            loading={isSubmitting}
+            disabled={!isValid || isSubmitting}
+            className="mt-2 w-full"
+          >
             Sign up
           </Button>
         </form>
@@ -104,9 +130,9 @@ export const SignUpForm = ({ className }: { className?: string }) => {
       <CardFooter className="flex justify-center pt-4">
         <p className="text-center text-xs text-muted-foreground">
           Already have an account?{" "}
-          <a href="/login" className={linkClass}>
+          <Link to="/login" className={linkClass}>
             Log in
-          </a>
+          </Link>
         </p>
       </CardFooter>
     </Card>
