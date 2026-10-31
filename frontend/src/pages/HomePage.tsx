@@ -1,3 +1,15 @@
+import type { ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  ArrowRight,
+  Code,
+  Flame,
+  Terminal,
+  Trophy,
+  Users,
+  Zap,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { NavBar } from "../components/layout/NavBar";
 import { MatrixRain } from "../components/ui/MatrixRain";
 import {
@@ -8,21 +20,90 @@ import {
   CardHeader,
 } from "../components/ui/Card";
 import { Logo } from "../components/ui/Logo";
-import {
-  Users,
-  Code,
-  Trophy,
-  Zap,
-  ArrowRight,
-  Flame,
-  Terminal,
-  Shield,
-} from "lucide-react";
 import { Button } from "../components/ui/Button";
-import { Link } from "react-router-dom";
 
-// Replace with real data from API later.
+/* ---------- Data (replace with API data later) ---------- */
+
 const stats = { playersOnline: 1200, activeMatches: 20 };
+
+const features: {
+  number: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}[] = [
+  {
+    number: "01",
+    icon: Users,
+    title: "REAL-TIME MULTIPLAYER",
+    description: "Compete against other developers in live coding battles.",
+  },
+  {
+    number: "02",
+    icon: Code,
+    title: "CODING CHALLENGES",
+    description: "Solve programming challenges under pressure.",
+  },
+  {
+    number: "03",
+    icon: Trophy,
+    title: "LEADERBOARDS",
+    description: "Climb the rankings and prove your skills.",
+  },
+  {
+    number: "04",
+    icon: Zap,
+    title: "PLAYER PROGRESSION",
+    description: "Track your performance and improve over time.",
+  },
+];
+
+const steps = [
+  { number: "01", step: "Create Account" },
+  { number: "02", step: "Join a Match" },
+  { number: "03", step: "Code & Compete" },
+  { number: "04", step: "Climb Leaderboard" },
+];
+
+/* ---------- Small shared pieces ---------- */
+
+/** "01 WHY CODEARENA? ———" label above a section heading. */
+function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 text-xs tracking-widest text-muted-foreground">
+      <span>{children}</span>
+      <span
+        aria-hidden="true"
+        className="hidden h-px w-20 bg-border sm:block"
+      />
+    </div>
+  );
+}
+
+/** Big two-line heading with a description beside it on desktop. Only HeroCard uses an h1. */
+function SectionHeading({
+  title,
+  accent,
+  description,
+}: {
+  title: string;
+  accent: string;
+  description: string;
+}) {
+  return (
+    <div className="flex flex-col justify-between gap-gutter lg:flex-row lg:items-end">
+      <h2 className="text-4xl font-extrabold uppercase leading-none tracking-ui text-foreground sm:text-6xl xl:text-7xl">
+        {title}
+        <span className="mt-2 block text-accent">{accent}</span>
+      </h2>
+      <CardDescription className="max-w-md leading-relaxed sm:text-base">
+        {description}
+      </CardDescription>
+    </div>
+  );
+}
+
+/* ---------- Hero row ---------- */
 
 function HeroCard({ className = "" }: { className?: string }) {
   return (
@@ -36,7 +117,7 @@ function HeroCard({ className = "" }: { className?: string }) {
             />
             <span>SYSTEM ONLINE</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-inline">
             <span
               aria-hidden="true"
               className="hidden h-px w-10 bg-border sm:block"
@@ -135,229 +216,148 @@ const TerminalCard = ({ className = "" }: { className?: string }) => {
   );
 };
 
+/* ---------- Sections ---------- */
+
 function FeatureShowcaseCard({ className = "" }: { className?: string }) {
-  // Array of features to keep your code clean and dry (DRY principle)
-  const features = [
-    {
-      number: "01",
-      icon: <Users className="text-accent size-4" />,
-      title: "REAL-TIME MULTIPLAYER",
-      description: "Compete against other developers in live coding battles.",
-    },
-    {
-      number: "02",
-      icon: <Code className="text-accent size-4" />,
-      title: "CODING CHALLENGES",
-      description: "Solve programming challenges under pressure.",
-    },
-    {
-      number: "03",
-      icon: <Trophy className="text-accent size-4" />,
-      title: "LEADERBOARDS",
-      description: "Climb the rankings and prove your skills.",
-    },
-    {
-      number: "04",
-      icon: <Zap className="text-accent size-4" />,
-      title: "PLAYER PROGRESSION",
-      description: "Track your performance and improve over time.",
-    },
-  ];
-
   return (
-    <div className={`w-full max-w-7xl mx-auto ${className}`}>
-      <Card variant="flat" className="flex flex-col">
-        <CardHeader>
-          {/* Fixed typo: item-center -> items-center */}
-          <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 text-xs tracking-widest text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span>01 WHY CODEARENNA?</span>
-            </div>
-            <span
-              aria-hidden="true"
-              className="hidden h-px w-20 bg-border sm:block"
-            />
-          </div>
-        </CardHeader>
+    <Card as="section" variant="flat" className={`flex flex-col ${className}`}>
+      <CardHeader>
+        <SectionLabel>01 WHY CODEARENA?</SectionLabel>
+      </CardHeader>
 
-        <CardContent className="flex-1">
-          {/* Fixed responsiveness: stacked on mobile/tablet, side-by-side on lg screens */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <h1 className="text-4xl font-extrabold uppercase leading-none tracking-ui text-foreground sm:text-6xl xl:text-7xl">
-              BUILT FOR
-              <span className="mt-2 block text-accent">COMPETITION.</span>
-            </h1>
-            <CardDescription className="max-w-md leading-relaxed sm:text-base text-muted-foreground">
-              Everything you need to sharpen your skills, challenge your peers,
-              and become the developer you were meant to be.
-            </CardDescription>
-          </div>
+      <CardContent className="flex-1">
+        <SectionHeading
+          title="BUILT FOR"
+          accent="COMPETITION."
+          description="Everything you need to sharpen your skills, challenge your peers, and become the developer you were meant to be."
+        />
 
-          {/* Feature Cards Grid with added gap-gutter (or gap-4) */}
-          <div className="grid grid-cols-1 pt-8 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {features.map((feature) => (
-              <Card
-                key={feature.number}
-                variant="solid"
-                className="flex flex-col justify-between transition-all duration-300 hover:border-accent/60"
-              >
-                <CardHeader className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
-                  <span className="text-accent font-mono font-bold">
-                    {feature.number}
-                  </span>
-                  {feature.icon}
-                </CardHeader>
-                <CardContent className="pt-4 flex flex-col justify-between flex-1">
-                  <div>
-                    <h2 className="text-base font-bold tracking-ui text-foreground">
-                      {feature.title}
-                    </h2>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                  <div className="flex justify-end items-end pt-4">
-                    <ArrowRight className="text-muted-foreground size-4 transition-transform duration-300 hover:translate-x-1 hover:text-accent" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        <div className="grid grid-cols-1 gap-stack pt-8 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map(({ number, icon: Icon, title, description }) => (
+            <Card
+              key={number}
+              variant="solid"
+              className="group flex flex-col justify-between hover:border-accent/60"
+            >
+              <CardHeader className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+                <span className="font-bold text-accent">{number}</span>
+                <Icon aria-hidden="true" className="size-4 text-accent" />
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col justify-between pt-4">
+                <div>
+                  <h3 className="text-base font-bold tracking-ui text-foreground">
+                    {title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {description}
+                  </p>
+                </div>
+                <div className="flex items-end justify-end pt-4">
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="size-4 text-muted-foreground transition-[transform,color] duration-(--duration) ease-ui group-hover:translate-x-1 group-hover:text-accent"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
 function ProtocolCard({ className = "" }: { className?: string }) {
-  const steps = [
-    {
-      number: "01",
-      step: "Create Account",
-      description: "Initialize your profile and set up your developer persona.",
-    },
-    {
-      number: "02",
-      step: "Join a Match",
-      description: "Select a queue, entry tier, or custom lobby.",
-    },
-    {
-      number: "03",
-      step: "Code & Compete",
-      description: "Solve real-time problems against live opponents.",
-    },
-    {
-      number: "04",
-      step: "Climb Leaderboard",
-      description: "Earn points, level up, and showcase your rank.",
-    },
-  ];
-
   return (
-    <div className={`w-full max-w-7xl mx-auto ${className}`}>
-      <Card variant="flat" className="flex flex-col">
-        <CardHeader>
-          <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 text-xs tracking-widest text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span>02 THE PROTOCOL</span>
-            </div>
-            <span
-              aria-hidden="true"
-              className="hidden h-px w-20 bg-border sm:block"
-            />
-          </div>
-        </CardHeader>
+    <Card as="section" variant="flat" className={`flex flex-col ${className}`}>
+      <CardHeader>
+        <SectionLabel>02 THE PROTOCOL</SectionLabel>
+      </CardHeader>
 
-        <CardContent className="flex-1">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <h1 className="text-4xl font-extrabold uppercase leading-none tracking-ui text-foreground sm:text-6xl xl:text-7xl">
-              ENTER THE
-              <span className="mt-2 block text-accent">ARENA.</span>
-            </h1>
-            <CardDescription className="max-w-md leading-relaxed sm:text-base text-muted-foreground">
-              Four steps between you and the top of the leaderboard.
-            </CardDescription>
-          </div>
+      <CardContent className="flex-1">
+        <SectionHeading
+          title="ENTER THE"
+          accent="ARENA."
+          description="Four steps between you and the top of the leaderboard."
+        />
 
-          <div className="grid grid-cols-1 pt-8 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {steps.map((item, index) => {
-              const isLastStep = index === steps.length - 1;
+        <div className="grid grid-cols-1 gap-stack pt-8 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((item, index) => (
+            <Card
+              key={item.number}
+              variant="solid"
+              padding="sm"
+              className="group flex flex-row items-center justify-between hover:border-accent/60"
+            >
+              <div className="flex items-center gap-inline">
+                <span className="text-xl font-bold tracking-ui text-accent">
+                  {item.number}
+                </span>
+                <div className="flex flex-col justify-center">
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    STEP {item.number}
+                  </span>
+                  <span className="mt-0.5 text-sm font-bold tracking-ui text-foreground">
+                    {item.step}
+                  </span>
+                </div>
+              </div>
 
-              return (
-                <Card
-                  key={item.number}
-                  variant="solid"
-                  className="group flex flex-row items-center justify-between p-4 transition-all duration-300 hover:border-accent/60"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-accent text-xl font-bold font-mono tracking-ui">
-                      {item.number}
-                    </span>
-                    <div className="flex flex-col justify-center">
-                      <span className="text-muted-foreground text-[10px] tracking-widest uppercase font-mono">
-                        STEP {item.number}
-                      </span>
-                      <span className="text-foreground text-sm font-bold tracking-ui mt-0.5">
-                        {item.step}
-                      </span>
-                    </div>
-                  </div>
-
-                  {!isLastStep && (
-                    <div className="pl-2">
-                      <ArrowRight className="text-muted-foreground size-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-accent" />
-                    </div>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+              {index < steps.length - 1 && (
+                <ArrowRight
+                  aria-hidden="true"
+                  className="ml-2 size-4 text-muted-foreground transition-[transform,color] duration-(--duration) ease-ui group-hover:translate-x-1 group-hover:text-accent"
+                />
+              )}
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
 export function CtaCard({ className = "" }: { className?: string }) {
+  const navigate = useNavigate();
+
   return (
-    <div className={`relative w-full max-w-7xl mx-auto ${className}`}>
-      <Card
-        variant="flat"
-        className="relative flex flex-col items-center justify-center p-8 sm:p-12 md:p-16 text-center"
-      >
-        <CardHeader className="pb-4">
-          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono tracking-widest text-muted-foreground ">
-            <Flame className="size-3.5  text-muted-foreground" />
-            <span>YOUR NEXT CHALLENGE AWAITS</span>
-          </div>
-        </CardHeader>
+    <Card
+      as="section"
+      variant="flat"
+      padding="none"
+      className={`flex flex-col items-center justify-center p-8 text-center sm:p-12 md:p-16 ${className}`}
+    >
+      <CardHeader className="pb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 text-xs tracking-widest text-muted-foreground">
+          <Flame aria-hidden="true" className="size-3.5" />
+          <span>YOUR NEXT CHALLENGE AWAITS</span>
+        </div>
+      </CardHeader>
 
-        <CardContent className="flex flex-col items-center justify-center max-w-2xl gap-6">
-          <h1 className="text-4xl font-extrabold uppercase leading-tight tracking-ui text-foreground sm:text-6xl xl:text-7xl">
-            READY TO ENTER
-            <span className="mt-1 block text-accent">THE ARENA?</span>
-          </h1>
+      <CardContent className="flex max-w-2xl flex-col items-center justify-center gap-6">
+        <h2 className="text-4xl font-extrabold uppercase leading-tight tracking-ui text-foreground sm:text-6xl xl:text-7xl">
+          READY TO ENTER
+          <span className="mt-1 block text-accent">THE ARENA?</span>
+        </h2>
 
-          <p className="text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
-            Create your account, initialize your developer persona, and take
-            your spot on the live global leaderboard.
-          </p>
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+          Create your account, initialize your developer persona, and take your
+          spot on the live global leaderboard.
+        </p>
 
-          <div className="pt-4 w-full sm:w-auto">
-            <Link to="/signup" className="w-full sm:w-auto inline-block">
-              <Button
-                size="lg"
-                variant="solid"
-                className="w-full sm:w-auto px-8 py-6 text-base tracking-ui font-bold"
-              >
-                <Terminal className="size-4 mr-2" />
-                INITIALIZE REGISTRATION
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        <div className="w-full pt-4 sm:w-auto">
+          {/* onClick + navigate instead of <Link><Button/></Link>: a button inside a link is invalid HTML */}
+          <Button
+            size="lg"
+            className="w-full px-8 py-6 font-bold sm:w-auto"
+            onClick={() => navigate("/signup")}
+          >
+            <Terminal aria-hidden="true" className="size-4" />
+            INITIALIZE REGISTRATION
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -365,30 +365,41 @@ function Footer({ className = "" }: { className?: string }) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={`w-full max-w-7xl mx-auto pt-12 pb-8 ${className}`}>
-      <Card variant="flat" className="border-t border-border/80 bg-card/40 py-6">
-        <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-muted-foreground">
-          {/* Brand Logo & Copyright */}
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-            <Logo />
-            <span className="hidden sm:inline text-border">|</span>
-            <span>&copy; {currentYear} CodeArena. All rights reserved.</span>
-          </div>
+    // The footer sits outside <main>, so it needs its own page-width wrapper and side padding.
+    <footer
+      className={`mx-auto w-full max-w-page px-gutter pb-8 pt-12 ${className}`}
+    >
+      <div className="flex flex-col items-center justify-between gap-gutter border-t border-border/80 bg-card/40 p-6 text-xs text-muted-foreground sm:flex-row">
+        {/* Brand and copyright */}
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
+          <Logo />
+          <span aria-hidden="true" className="hidden text-border sm:inline">
+            |
+          </span>
+          <span>&copy; {currentYear} CodeArena. All rights reserved.</span>
+        </div>
 
-          {/* Essential Navigation Links */}
-          <div className="flex items-center gap-6">
-            <Link to="/privacy" className="hover:text-accent transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="hover:text-accent transition-colors">
-              Terms of Service
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Essential links */}
+        <div className="flex items-center gap-6">
+          <Link
+            to="/privacy"
+            className="transition-colors duration-(--duration) hover:text-accent"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            to="/terms"
+            className="transition-colors duration-(--duration) hover:text-accent"
+          >
+            Terms of Service
+          </Link>
+        </div>
+      </div>
     </footer>
   );
 }
+
+/* ---------- Page ---------- */
 
 function HomePage() {
   return (
@@ -396,22 +407,18 @@ function HomePage() {
       <MatrixRain />
       <NavBar links={[]} homeHref="/" activePath="/" />
 
-      <main className="mx-auto w-full max-w-page px-gutter py-12 lg:py-32 flex flex-col gap-12 lg:gap-48">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 items-stretch">
+      {/* py-section / gap-section follow your global --section variable */}
+      <main className="mx-auto flex w-full max-w-page flex-col gap-section px-gutter py-section">
+        <div className="grid grid-cols-1 items-stretch gap-gutter lg:grid-cols-2">
           <HeroCard />
           <TerminalCard />
         </div>
 
-        <div>
-          <FeatureShowcaseCard />
-        </div>
-        <div>
-          <ProtocolCard />
-        </div>
-        <div>
-          <CtaCard />
-        </div>
+        <FeatureShowcaseCard />
+        <ProtocolCard />
+        <CtaCard />
       </main>
+
       <Footer />
     </>
   );
