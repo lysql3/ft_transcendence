@@ -21,9 +21,12 @@ const base =
   "disabled:cursor-not-allowed disabled:opacity-50";
 
 const variants: Record<ButtonVariant, string> = {
-  solid: "border-accent bg-accent text-accent-foreground hover:bg-background hover:text-accent",
-  outline: "border-accent bg-background text-accent hover:bg-accent hover:text-accent-foreground",
-  ghost: "border-transparent bg-transparent text-foreground hover:border-border hover:text-accent",
+  solid:
+    "border-accent bg-accent text-accent-foreground hover:bg-background hover:text-accent",
+  outline:
+    "border-accent bg-background text-accent hover:bg-accent hover:text-accent-foreground",
+  ghost:
+    "border-transparent bg-transparent text-foreground hover:border-border hover:text-accent",
   danger:
     "border-destructive bg-destructive text-destructive-foreground hover:bg-background hover:text-destructive",
 };

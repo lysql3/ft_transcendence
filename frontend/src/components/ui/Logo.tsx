@@ -29,10 +29,7 @@ export const Logo = ({
       <span aria-hidden="true" className="text-logo">
         &lt;{name}
       </span>
-      <span
-        aria-hidden="true"
-        className="text-accent text-shadow-glow"
-      >
+      <span aria-hidden="true" className="text-accent text-shadow-glow">
         /
       </span>
       <span aria-hidden="true" className="text-logo">

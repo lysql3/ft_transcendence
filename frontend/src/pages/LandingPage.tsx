@@ -10,21 +10,23 @@ import {
   Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { NavBar } from "../components/layout/NavBar";
-import { MatrixRain } from "../components/ui/MatrixRain";
+import { NavBar } from "@/components/layout/NavBar";
+import { MatrixRain } from "@/components/ui/MatrixRain";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-} from "../components/ui/Card";
-import { Logo } from "../components/ui/Logo";
-import { Button } from "../components/ui/Button";
+} from "@/components/ui/Card";
+import { Logo } from "@/components/ui/Logo";
+import { Button } from "@/components/ui/Button";
 
 /* ---------- Data (replace with API data later) ---------- */
 
 const stats = { playersOnline: 1200, activeMatches: 20 };
+
+const currentYear = new Date().getFullYear();
 
 const features: {
   number: string;
@@ -65,9 +67,6 @@ const steps = [
   { number: "04", step: "Climb Leaderboard" },
 ];
 
-/* ---------- Small shared pieces ---------- */
-
-/** "01 WHY CODEARENA? ———" label above a section heading. */
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-2 text-xs tracking-widest text-muted-foreground">
@@ -80,7 +79,6 @@ function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
-/** Big two-line heading with a description beside it on desktop. Only HeroCard uses an h1. */
 function SectionHeading({
   title,
   accent,
@@ -102,8 +100,6 @@ function SectionHeading({
     </div>
   );
 }
-
-/* ---------- Hero row ---------- */
 
 function HeroCard({ className = "" }: { className?: string }) {
   return (
@@ -163,7 +159,6 @@ function HeroCard({ className = "" }: { className?: string }) {
 const TerminalCard = ({ className = "" }: { className?: string }) => {
   return (
     <Card variant="solid" corners className={`flex flex-col ${className}`}>
-      {/* Terminal title bar */}
       <CardHeader className="mb-0 flex flex-row items-center justify-between border-b border-border/60 pb-3">
         <div aria-hidden="true" className="flex items-center gap-2">
           <span className="size-3 rounded-full bg-destructive/80" />
@@ -215,8 +210,6 @@ const TerminalCard = ({ className = "" }: { className?: string }) => {
     </Card>
   );
 };
-
-/* ---------- Sections ---------- */
 
 function FeatureShowcaseCard({ className = "" }: { className?: string }) {
   return (
@@ -346,7 +339,6 @@ export function CtaCard({ className = "" }: { className?: string }) {
         </p>
 
         <div className="w-full pt-4 sm:w-auto">
-          {/* onClick + navigate instead of <Link><Button/></Link>: a button inside a link is invalid HTML */}
           <Button
             size="lg"
             className="w-full px-8 py-6 font-bold sm:w-auto"
@@ -362,15 +354,11 @@ export function CtaCard({ className = "" }: { className?: string }) {
 }
 
 function Footer({ className = "" }: { className?: string }) {
-  const currentYear = new Date().getFullYear();
-
   return (
-    // The footer sits outside <main>, so it needs its own page-width wrapper and side padding.
     <footer
       className={`mx-auto w-full max-w-page px-gutter pb-8 pt-12 ${className}`}
     >
       <div className="flex flex-col items-center justify-between gap-gutter border-t border-border/80 bg-card/40 p-6 text-xs text-muted-foreground sm:flex-row">
-        {/* Brand and copyright */}
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
           <Logo />
           <span aria-hidden="true" className="hidden text-border sm:inline">
@@ -379,7 +367,6 @@ function Footer({ className = "" }: { className?: string }) {
           <span>&copy; {currentYear} CodeArena. All rights reserved.</span>
         </div>
 
-        {/* Essential links */}
         <div className="flex items-center gap-6">
           <Link
             to="/privacy"
@@ -399,15 +386,12 @@ function Footer({ className = "" }: { className?: string }) {
   );
 }
 
-/* ---------- Page ---------- */
-
-function HomePage() {
+function LandingPage() {
   return (
     <>
       <MatrixRain />
       <NavBar links={[]} homeHref="/" activePath="/" />
 
-      {/* py-section / gap-section follow your global --section variable */}
       <main className="mx-auto flex w-full max-w-page flex-col gap-section px-gutter py-section">
         <div className="grid grid-cols-1 items-stretch gap-gutter lg:grid-cols-2">
           <HeroCard />
@@ -424,4 +408,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default LandingPage;

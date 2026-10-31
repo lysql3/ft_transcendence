@@ -22,18 +22,18 @@ export const SignUpForm = ({ className }: { className?: string }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting , isValid },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     mode: "onBlur",
     resolver: zodResolver(RegisterSchema),
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    console.log("Form submitted successfully:", data);
+    // TODO: call your register API here
+    console.log("Sign up submitted for:", data.email);
   };
 
   return (
-    // flex-col lets this card stretch to the same height as its neighbour
     <Card
       variant="solid"
       corners
@@ -56,7 +56,7 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             autoComplete="username"
             placeholder="Enter your username"
             {...register("username")}
-            error={errors.username?.message as string}
+            error={errors.username?.message}
           />
 
           <Input
@@ -66,7 +66,7 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             autoComplete="email"
             placeholder="Enter your email"
             {...register("email")}
-            error={errors.email?.message as string}
+            error={errors.email?.message}
           />
 
           <Input
@@ -76,7 +76,7 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             autoComplete="new-password"
             placeholder="Enter your password"
             {...register("password")}
-            error={errors.password?.message as string}
+            error={errors.password?.message}
           />
 
           <Input
@@ -86,7 +86,7 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             autoComplete="new-password"
             placeholder="Confirm your password"
             {...register("confirmPassword")}
-            error={errors.confirmPassword?.message as string}
+            error={errors.confirmPassword?.message}
           />
 
           <div className="flex flex-col gap-1 pt-1">
@@ -102,14 +102,19 @@ export const SignUpForm = ({ className }: { className?: string }) => {
                 className="cursor-pointer select-none text-xs text-muted-foreground"
               >
                 I agree to the{" "}
-                <a href="/terms" className={linkClass}>
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                >
                   terms and conditions
                 </a>
               </label>
             </div>
             {errors.terms?.message && (
               <p role="alert" className="text-xs text-destructive">
-                {errors.terms.message as string}
+                {errors.terms.message}
               </p>
             )}
           </div>
@@ -119,7 +124,6 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             variant="solid"
             size="lg"
             loading={isSubmitting}
-            disabled={!isValid || isSubmitting}
             className="mt-2 w-full"
           >
             Sign up

@@ -15,11 +15,7 @@ const features = [
 
 function JoinCard() {
   return (
-    <Card
-      variant="solid"
-      corners
-      className="order-2 flex flex-col lg:order-1 max-w-md"
-    >
+    <Card variant="solid" corners className="order-2 flex flex-col lg:order-1">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs tracking-widest text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -40,7 +36,7 @@ function JoinCard() {
       </CardHeader>
 
       <CardContent className="flex-1">
-        <h1 className="text-4xl font-extrabold uppercase leading-none tracking-tight text-foreground sm:text-8xl">
+        <h1 className="text-4xl font-extrabold uppercase leading-none tracking-tight text-foreground sm:text-7xl">
           JOIN THE
           <span className="mt-2 block text-accent">ARENA.</span>
         </h1>
@@ -56,7 +52,7 @@ function JoinCard() {
             <li key={text} className="flex items-center gap-3">
               <span
                 aria-hidden="true"
-                className="flex size-5 shrink-0 items-center justify-center rounded-ui border border-accent/40 bg-accent/10 text-accent shadow-[0_0_8px_-2px_var(--accent)]"
+                className="flex size-5 shrink-0 items-center justify-center rounded-ui border border-accent/40 bg-accent/10 text-accent shadow-glow"
               >
                 ✓
               </span>
@@ -73,9 +69,9 @@ export default function SignUpPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-gutter py-8">
       <MatrixRain />
-      <div className="grid w-full max-w-4xl grid-cols-1 gap-gutter justify-items-center lg:justify-items-stretch lg:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-md grid-cols-1 gap-gutter lg:max-w-4xl lg:grid-cols-2">
         <JoinCard />
-        <SignUpForm className="order-1 lg:order-2 max-w-md w-full" />
+        <SignUpForm className="order-1 lg:order-2" />
       </div>
     </main>
   );

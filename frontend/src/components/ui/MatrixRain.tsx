@@ -10,23 +10,23 @@ export type RainLayer = {
 };
 
 export type MatrixRainConfig = {
-  speed: number; 
-  density: number; 
-  bgColor: string; 
-  trailFade: number; 
-  trailLength: number; 
-  color: string; 
-  headColor: string; 
-  chars: string; 
-  font: string; 
-  mutation: number; 
-  layers: RainLayer[]; 
+  speed: number;
+  density: number;
+  bgColor: string;
+  trailFade: number;
+  trailLength: number;
+  color: string;
+  headColor: string;
+  chars: string;
+  font: string;
+  mutation: number;
+  layers: RainLayer[];
 };
 
 const DEFAULT_CONFIG: MatrixRainConfig = {
   speed: 0.5,
   density: 0.3,
-  bgColor: "#000000", 
+  bgColor: "#000000",
   trailFade: 0.32,
   trailLength: 1,
   color: "#00ff41",
@@ -74,9 +74,9 @@ type LayerState = RainLayer & { streams: Stream[] };
 
 type MatrixRainProps = Partial<MatrixRainConfig> & {
   className?: string;
-  bgClass?: string; 
-  colorClass?: string; 
-  headClass?: string; 
+  bgClass?: string;
+  colorClass?: string;
+  headClass?: string;
 };
 
 const hexToRgb = (hex: string): [number, number, number] => {
@@ -127,7 +127,7 @@ export function MatrixRain({
       if (out.startsWith("#")) return hexToRgb(out);
       if (/^rgba?\(/.test(out)) {
         const m = out.match(/[\d.]+/g)!;
-        if (m[3] !== undefined && +m[3] === 0) return null; 
+        if (m[3] !== undefined && +m[3] === 0) return null;
         return [+m[0], +m[1], +m[2]];
       }
       return null;
@@ -169,7 +169,7 @@ export function MatrixRain({
         DEFAULT_CONFIG.headColor,
         "headClass",
       );
-      neck = main.map((v, i) => ((v + head[i]) / 2) | 0); 
+      neck = main.map((v, i) => ((v + head[i]) / 2) | 0);
       const key = `${bg}|${main}|${head}`;
       const changed = key !== colorKey;
       colorKey = key;

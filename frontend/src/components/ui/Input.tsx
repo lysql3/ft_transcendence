@@ -9,8 +9,18 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, hint, error, type = "text", id, disabled, className = "", wrapperClassName = "", ...props },
-  ref
+  {
+    label,
+    hint,
+    error,
+    type = "text",
+    id,
+    disabled,
+    className = "",
+    wrapperClassName = "",
+    ...props
+  },
+  ref,
 ) {
   const autoId = useId();
   const inputId = id ?? autoId;
