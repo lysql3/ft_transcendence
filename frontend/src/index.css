@@ -1,1 +1,201 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 @import "tailwindcss";
+
+@custom-variant dark (&:is([data-theme="matrix-dark"], [data-theme="cyberpunk"], [data-theme="matrix-dark"] *, [data-theme="cyberpunk"] *));
+
+:root {
+  /* layout */
+  --gutter: 1rem;
+  --section: 4rem;
+  --container: 72rem;
+
+  /* typography */
+  --tracking: 0.05em;
+
+  /* motion */
+  --duration: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* component spacing */
+  --pad-control-x: 1rem;
+  --pad-control-y: 0.5rem;
+  --pad-card: 1.5rem;
+  --gap-stack: 1rem;
+  --gap-inline: 0.75rem;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 1.5rem;
+    --section: 12rem;
+  }
+}
+
+:root,
+[data-theme="matrix-dark"] {
+  color-scheme: dark;
+
+  /* colors */
+  --bg-primary: #000000;
+  --bg-secondary: #051405;
+  --bg-tertiary: #0a1f0a;
+  --text-primary: #ffffff;
+  --text-muted: #7fa07f;
+  --accent: #00ff41;
+  --accent-text: #00ff41;
+  --on-accent: #000000;
+  --border: #003b00;
+  --logo-text: #ffffff;
+  --danger: #ff3b3b;
+  --on-danger: #000000;
+  --success: #00ff41;
+  --warning: #ffb000;
+  --info: #3bc9ff;
+
+  --radius: 0px;
+  --blur: 4px;
+  --glow-box: 0 0 24px -6px var(--accent);
+  --glow-text: 0 0 8px var(--accent), 0 0 20px var(--accent);
+}
+
+[data-theme="matrix-light"] {
+  color-scheme: light;
+
+  --bg-primary: #f0fff0;
+  --bg-secondary: #d4edd4;
+  --bg-tertiary: #c2dec2;
+  --text-primary: #051405;
+  --text-muted: #4f6f4f;
+  --accent: #008f11;
+  --accent-text: #008f11;
+  --on-accent: #f0fff0;
+  --border: #a3c2a3;
+  --logo-text: #051405;
+  --danger: #c62828;
+  --on-danger: #ffffff;
+  --success: #15803d;   /* added: darker status colors readable on a pale background */
+  --warning: #b45309;
+  --info: #0369a1;
+
+  --radius: 4px;
+  --blur: 8px;
+  --glow-box: 0 0 18px -6px var(--accent);
+  --glow-text: 0 0 6px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+[data-theme="cyberpunk"] {
+  color-scheme: dark;
+
+  --bg-primary: #0d0221;
+  --bg-secondary: #1a0b3a;
+  --bg-tertiary: #261256;
+  --text-primary: #00f0ff;
+  --text-muted: #7c9bb0;
+  --accent: #ff0055;
+  --accent-text: #ff0055;
+  --on-accent: #0d0221;
+  --border: #00f0ff;
+  --logo-text: #ffffff;
+  --danger: #ff5c33;
+  --on-danger: #0d0221;
+  --success: #00ff9f;   /* added */
+  --warning: #ffd400;
+  --info: #5ab0ff;
+
+  --radius: 0px;
+  --blur: 12px;
+  --glow-box: 0 0 24px -4px var(--accent);
+  --glow-text: 0 0 8px var(--accent), 0 0 24px var(--accent);
+}
+
+@theme inline {
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-secondary);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--bg-secondary);
+  --color-popover-foreground: var(--text-primary);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--on-accent);
+  --color-secondary: var(--bg-tertiary);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted: var(--bg-tertiary);
+  --color-muted-foreground: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--on-accent);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--on-danger);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+  --color-logo: var(--logo-text);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  --radius-ui: var(--radius);
+  --radius-sm: max(0px, calc(var(--radius) - 4px));
+  --radius-md: max(0px, calc(var(--radius) - 2px));
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-glow: var(--glow-box);
+  --text-shadow-glow: var(--glow-text);
+  --blur-glass: var(--blur);
+
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section);
+  --container-page: var(--container);
+
+  /* added: these create px-control-x, py-control-y, p-card, gap-stack, gap-inline */
+  --spacing-control-x: var(--pad-control-x);
+  --spacing-control-y: var(--pad-control-y);
+  --spacing-card: var(--pad-card);
+  --spacing-stack: var(--gap-stack);
+  --spacing-inline: var(--gap-inline);
+
+  --tracking-ui: var(--tracking);
+  --ease-ui: var(--ease);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-mono;
+    transition:
+      background-color var(--duration) var(--ease),
+      color var(--duration) var(--ease);
+  }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+  /* Neon text selection highlight */
+  ::selection {
+    background-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  /* Tech-styled custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+}

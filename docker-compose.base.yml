@@ -20,6 +20,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      backend-migrate:
+        condition: service_completed_successfully
+    networks:
+      - ft_tra_networks
+
+  backend-migrate:
+    build:
+      context: ./backend
+      target: build
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - ft_tra_networks
 
