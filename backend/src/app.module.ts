@@ -4,6 +4,7 @@ import { AppService } from './app.service.js';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { UsersModule } from './users/users.module.js';
+import { EventsModule } from './events/events.module.js';
 import { LoggerModule } from 'nestjs-pino';
 import { loggerConfig } from './logger.config.js';
 
@@ -12,6 +13,7 @@ import { loggerConfig } from './logger.config.js';
     HealthModule,
     PrismaModule,
     UsersModule,
+    EventsModule,
     LoggerModule.forRoot(loggerConfig),
   ],
   controllers: [AppController],
