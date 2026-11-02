@@ -353,12 +353,12 @@ export function CtaCard({ className = "" }: { className?: string }) {
   );
 }
 
-function Footer({ className = "" }: { className?: string }) {
+export function Footer({ className = "" }: { className?: string }) {
   return (
     <footer
-      className={`mx-auto w-full max-w-page px-gutter pb-8 pt-12 ${className}`}
+      className={`w-full border-t border-border/80 bg-card/40 pb-8 pt-12 ${className}`}
     >
-      <div className="flex flex-col items-center justify-between gap-gutter border-t border-border/80 bg-card/40 p-6 text-xs text-muted-foreground sm:flex-row">
+      <div className="mx-auto flex w-full max-w-page flex-col items-center justify-between gap-gutter px-gutter text-xs text-muted-foreground sm:flex-row">
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
           <Logo />
           <span aria-hidden="true" className="hidden text-border sm:inline">

@@ -22,14 +22,14 @@ export const SignUpForm = ({ className }: { className?: string }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<RegisterFormData>({
-    mode: "onBlur",
+    mode: "onTouched",
     resolver: zodResolver(RegisterSchema),
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    // TODO: call your register API here
+    // TODO: call your register API here.
     console.log("Sign up submitted for:", data.email);
   };
 
@@ -124,6 +124,7 @@ export const SignUpForm = ({ className }: { className?: string }) => {
             variant="solid"
             size="lg"
             loading={isSubmitting}
+            disabled={!isValid}
             className="mt-2 w-full"
           >
             Sign up

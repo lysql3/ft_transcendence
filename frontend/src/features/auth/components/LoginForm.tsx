@@ -19,9 +19,9 @@ export const LoginForm = ({ className }: { className?: string }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<LoginFormData>({
-    mode: "onBlur",
+    mode: "onTouched",
     resolver: zodResolver(LoginSchema),
   });
 
@@ -70,13 +70,21 @@ export const LoginForm = ({ className }: { className?: string }) => {
             variant="solid"
             size="lg"
             loading={isSubmitting}
+            disabled={!isValid}
             className="mt-2 w-full"
           >
             Log in
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="justify-center">
+      <CardFooter className="flex flex-col justify-center">
+        <p className="text-center text-xs text-muted-foreground">
+          Forgot your password?{" "}
+          <Link to="/forgot-password" className={linkClass}>
+            Reset it
+          </Link>
+        </p>
+
         <p className="text-center text-xs text-muted-foreground">
           Don't have an account?{" "}
           <Link to="/signup" className={linkClass}>
