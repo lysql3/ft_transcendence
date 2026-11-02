@@ -19,6 +19,7 @@ MAGENTA	= \033[35m
 .PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
 	backend backend-d build-backend \
         prod prod-d build-prod down-prod restart-prod logs-prod \
+	migrate seed migrate-prod seed-prod \
 	down clean fclean docker-clean test test-e2e lint build-local
 
 # dev
@@ -102,6 +103,27 @@ restart-prod: down-prod prod
 logs-prod:
 	$(CMD_PROD) logs -f
 
+# database migrations and seeding
+migrate:
+	@echo "$(CYAN)Running database migrations (dev)…$(RESET)"
+	$(CMD_DEV) up -d postgres
+	$(CMD_DEV) run --rm backend-migrate npm run prisma:migrate:deploy
+
+seed:
+	@echo "$(CYAN)Seeding database (dev)…$(RESET)"
+	$(CMD_DEV) up -d postgres
+	$(CMD_DEV) run --rm backend-migrate npx prisma db seed
+
+migrate-prod:
+	@echo "$(MAGENTA)Running database migrations (prod)…$(RESET)"
+	$(CMD_PROD) up -d postgres
+	$(CMD_PROD) run --rm backend-migrate npm run prisma:migrate:deploy
+
+seed-prod:
+	@echo "$(MAGENTA)Seeding database (prod)…$(RESET)"
+	$(CMD_PROD) up -d postgres
+	$(CMD_PROD) run --rm backend-migrate npx prisma db seed
+
 # cleanup
 down:
 	@echo "$(YELLOW)Stopping all project containers…$(RESET)"
@@ -167,6 +189,12 @@ help:
 	@echo "    $(BOLD)make down-prod$(RESET)    Stop prod containers"
 	@echo "    $(BOLD)make restart-prod$(RESET) Restart prod containers"
 	@echo "    $(BOLD)make logs-prod$(RESET)    Follow prod container logs"
+	@echo ""
+	@echo "  $(BOLD)$(CYAN)[Database Operations]$(RESET)"
+	@echo "    $(BOLD)make migrate$(RESET)       Apply database migrations (dev)"
+	@echo "    $(BOLD)make seed$(RESET)          Seed database with initial records (dev)"
+	@echo "    $(BOLD)make migrate-prod$(RESET)  Apply database migrations (prod)"
+	@echo "    $(BOLD)make seed-prod$(RESET)     Seed database with initial records (prod)"
 	@echo ""
 	@echo "  $(BOLD)$(YELLOW)[Cleanup]$(RESET)"
 	@echo "    $(BOLD)make down$(RESET)         Stop all running project containers"
