@@ -23,16 +23,13 @@ export const Logo = ({
     <span
       role="img"
       aria-label={name}
-      className={`inline-flex select-none items-center whitespace-nowrap font-bold tracking-ui ${sizes[size]} ${className}`}
+      className={`inline-flex select-none items-center whitespace-nowrap font-semibold tracking-ui ${sizes[size]} ${className}`}
       {...rest}
     >
       <span aria-hidden="true" className="text-logo">
         &lt;{name}
       </span>
-      <span
-        aria-hidden="true"
-        className="text-accent text-shadow-glow"
-      >
+      <span aria-hidden="true" className="text-accent text-shadow-glow">
         /
       </span>
       <span aria-hidden="true" className="text-logo">

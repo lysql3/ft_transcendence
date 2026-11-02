@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
+import { Link } from "react-router-dom";
 
 export type NavLink = { label: string; href: string };
 
@@ -33,27 +34,31 @@ export const NavBar = ({
         aria-label="Main"
         className="mx-auto flex max-w-page items-center justify-between gap-gutter px-gutter py-4"
       >
-        <a href={homeHref} aria-label="CodeArena home">
+        <Link to={homeHref} aria-label="CodeArena home">
           <Logo />
-        </a>
+        </Link>
 
         <ul className="hidden items-center gap-6 md:flex">
           {links.map(({ label, href }) => (
             <li key={href}>
-              <a
-                href={href}
+              <Link
+                to={href}
                 className={linkClass(href)}
                 aria-current={isActive(href) ? "page" : undefined}
               >
                 {label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="outline">SIGN UP</Button>
-          <Button>LOGIN</Button>
+          <Link to="/signup">
+            <Button variant="outline">SIGN UP</Button>
+          </Link>
+          <Link to="/login">
+            <Button>LOGIN</Button>
+          </Link>
         </div>
 
         <button
@@ -76,20 +81,26 @@ export const NavBar = ({
           <ul className="flex flex-col gap-4 py-4">
             {links.map(({ label, href }) => (
               <li key={href}>
-                <a
-                  href={href}
+                <Link
+                  to={href}
                   className={linkClass(href)}
                   aria-current={isActive(href) ? "page" : undefined}
                   onClick={() => setOpen(false)}
                 >
                   {label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
           <div className="flex items-center gap-3 pt-2">
-            <Button variant="outline" className="w-full">Log in</Button>
-            <Button className="w-full">Sign up</Button>
+            <Link to="/login">
+              <Button variant="outline" className="w-full">
+                Log in
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button className="w-full">Sign up</Button>
+            </Link>
           </div>
         </div>
       )}
