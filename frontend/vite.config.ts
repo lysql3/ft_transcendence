@@ -22,6 +22,11 @@ export default defineConfig({
         target: process.env.BACKEND_URL || "http://localhost:3000",
         changeOrigin: true,
       },
+      "/socket.io": {
+        target: process.env.BACKEND_URL || "http://localhost:3000",
+        ws: true,
+        changeOrigin: true,
+      },
     },
   },
 });

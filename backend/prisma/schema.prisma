@@ -8,9 +8,88 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
+  id           Int      @id @default(autoincrement())
+  username     String   @unique @db.VarChar(50)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @db.VarChar(255)
+  rating       Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  profile        UserProfile?
+  player1Matches Match[]      @relation("Player1Matches")
+  player2Matches Match[]      @relation("Player2Matches")
+  wonMatches     Match[]      @relation("WinnerMatches")
+  submissions    Submission[]
+}
+
+model UserProfile {
+  userId      Int     @id
+  displayName String? @db.VarChar(100)
+  avatar      String?
+  bio         String?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Problem {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String
+  difficulty  String   @db.VarChar(20)
+  createdAt   DateTime @default(now())
+
+  testCases    TestCase[]
+  submissions  Submission[]
+  matches      Match[]
+}
+
+model TestCase {
+  id             Int     @id @default(autoincrement())
+  problemId      Int
+  input          String
+  expectedOutput String
+  isHidden       Boolean @default(true)
+
+  problem Problem @relation(fields: [problemId], references: [id])
+}
+
+model Language {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(50)
+
+  submissions Submission[]
+}
+
+model Match {
+  id        Int      @id @default(autoincrement())
+  problemId Int
+  player1Id Int
+  player2Id Int
+  winnerId  Int?
+  status    String   @db.VarChar(30)
+  score1    Int      @default(0)
+  score2    Int      @default(0)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  problem      Problem      @relation(fields: [problemId], references: [id])
+  player1      User         @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2      User         @relation("Player2Matches", fields: [player2Id], references: [id])
+  winner       User?        @relation("WinnerMatches", fields: [winnerId], references: [id])
+  submissions  Submission[]
+}
+
+model Submission {
+  id          Int      @id @default(autoincrement())
+  matchId     Int?
+  userId      Int
+  problemId   Int
+  languageId  Int
+  codeContent String
+  status      String   @db.VarChar(30)
+  createdAt   DateTime @default(now())
+
+  match    Match?   @relation(fields: [matchId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  problem  Problem  @relation(fields: [problemId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
 }

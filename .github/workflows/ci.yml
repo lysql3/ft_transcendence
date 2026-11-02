@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-build-backend:
+    name: Backend (Lint, Build & Test)
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci_db
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prisma generate
+        run: npm run prisma:generate
+
+      - name: Run Oxlint
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Build backend
+        run: npm run build
+
+  lint-and-build-frontend:
+    name: Frontend (Lint & Build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Oxlint
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build
+
+  compose-config-check:
+    name: Docker Compose Config Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Dev Docker Compose configuration
+        run: docker compose --env-file .env.dev -f docker-compose.base.yml -f docker-compose.dev.yml config
+
+      - name: Validate Prod Docker Compose configuration
+        run: docker compose --env-file .env.prod -f docker-compose.base.yml -f docker-compose.prod.yml config

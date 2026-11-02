@@ -27,7 +27,7 @@
 @media (min-width: 48rem) {
   :root {
     --gutter: 1.5rem;
-    --section: 12rem;
+    --section: 6rem;
   }
 }
 
