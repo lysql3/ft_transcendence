@@ -9,7 +9,9 @@ export const loggerConfig = {
             options: {
               colorize: true,
               translateTime: 'SYS:standard',
-              singleLine: true,
+              singleLine: false,
+              ignore:
+                'pid,hostname,req.headers,req.remoteAddress,req.remotePort,res.headers',
             },
           }
         : undefined,

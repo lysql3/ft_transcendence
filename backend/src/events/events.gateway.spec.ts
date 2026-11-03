@@ -29,4 +29,3 @@ describe('EventsGateway', () => {
     expect(response.data.clientData).toEqual({ test: 123 });
   });
 });
-

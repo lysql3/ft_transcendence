@@ -37,10 +37,7 @@ export class EventsGateway
   }
 
   @SubscribeMessage('ping')
-  handlePing(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data?: unknown,
-  ) {
+  handlePing(@ConnectedSocket() client: Socket, @MessageBody() data?: unknown) {
     const timestamp = new Date().toISOString();
     this.logger.log(`Received ping from ${client.id}`);
     return {
@@ -52,4 +49,3 @@ export class EventsGateway
     };
   }
 }
-

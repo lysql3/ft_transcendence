@@ -21,7 +21,7 @@ export class UsersService {
   findAll() {
     return this.prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
   }
-  
+
   findOne(id: number) {
     return this.prisma.user.findUnique({ where: { id } });
   }
@@ -36,12 +36,13 @@ export class UsersService {
 
   async getProfile(userId: number) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user)
-      throw new NotFoundException(`User with ID ${userId} not found`);
+    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
 
-    let profile = await this.prisma.userProfile.findUnique({ where: { userId }, });
+    let profile = await this.prisma.userProfile.findUnique({
+      where: { userId },
+    });
     if (!profile)
-      profile = await this.prisma.userProfile.create({ data: { userId }, });
+      profile = await this.prisma.userProfile.create({ data: { userId } });
     return profile;
   }
 
@@ -57,5 +58,4 @@ export class UsersService {
       },
     });
   }
-
 }
