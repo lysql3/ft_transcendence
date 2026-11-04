@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { Prisma } from '../generated/prisma/client.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
@@ -9,18 +10,25 @@ import * as bcrypt from 'bcrypt'
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto)
+  {
     const passwordHash = await bcrypt.hash(dto.password, 12);
-
-    return this.prisma.user.create({
-      data: {
-        username: dto.username,
-        email: dto.email,
-        passwordHash,
-        profile: { create: {} },
-      },
-      omit: { passwordHash: true },
-    });
+    try {
+      return this.prisma.user.create({
+        data: {
+          username: dto.username,
+          email: dto.email,
+          passwordHash,
+          profile: { create: {} },
+        },
+        omit: { passwordHash: true },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002')
+            throw new ConflictException('Username or email already exists');
+      throw error;
+    }
   }
 
   findAll() {
@@ -41,20 +49,38 @@ export class UsersService {
   async update(id: number, data: UpdateUserDto) {
     await this.findOne(id);
 
-    return this.prisma.user.update({
-      where: { id },
-      data,
-      omit: { passwordHash: true },
-    });
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data,
+        omit: { passwordHash: true },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Username or email already exists');
+      }
+
+      throw error;
+    }
   }
 
   async remove(id: number) {
     await this.findOne(id);
 
-    return this.prisma.user.delete({
-      where: { id },
-      omit: { passwordHash: true },
-    });
+    const results = await this.prisma.$transaction([
+      this.prisma.userProfile.delete({
+        where: { userId: id },
+      }),
+      this.prisma.user.delete({
+        where: { id },
+        omit: { passwordHash: true },
+      }),
+    ]);
+
+    return results[1];
   }
 
   async getProfile(userId: number) {
