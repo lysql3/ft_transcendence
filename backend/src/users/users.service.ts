@@ -17,48 +17,61 @@ export class UsersService {
         username: dto.username,
         email: dto.email,
         passwordHash,
+        profile: { create: {} },
       },
-      omit: { passwordHash: true }
+      omit: { passwordHash: true },
     });
   }
 
   findAll() {
     return this.prisma.user.findMany({ orderBy: { createdAt: 'desc' }, omit: { passwordHash: true }, });
   }
+  
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where : { id },
+      omit  : { passwordHash: true },
+    });
+    
+    if (!user) throw new NotFoundException('User not found');
 
-  findOne(id: number) {
-    return this.prisma.user.findUnique({ where: { id }, omit: {passwordHash: true}, });
+    return user;
   }
 
-  update(id: number, data: UpdateUserDto) {
-    return this.prisma.user.update({ where: { id }, data, omit: {passwordHash: true} });
+  async update(id: number, data: UpdateUserDto) {
+    await this.findOne(id);
+
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      omit: { passwordHash: true },
+    });
   }
 
-  remove(id: number) {
-    return this.prisma.user.delete({ where: { id }, omit: {passwordHash: true} });
+  async remove(id: number) {
+    await this.findOne(id);
+
+    return this.prisma.user.delete({
+      where: { id },
+      omit: { passwordHash: true },
+    });
   }
 
   async getProfile(userId: number) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user)
-      throw new NotFoundException(`User with ID ${userId} not found`);
-
-    let profile = await this.prisma.userProfile.findUnique({ where: { userId }, });
+    const profile = await this.prisma.userProfile.findUnique({
+      where: { userId },
+    });
     if (!profile)
-      profile = await this.prisma.userProfile.create({ data: { userId }, });
+      throw new NotFoundException(`User with ID ${userId} does not exist`);    
     return profile;
   }
 
   async updateProfile(userId: number, data: UpdateProfileDto) {
-    return this.prisma.userProfile.upsert({
+    await this.getProfile(userId);
+
+    return this.prisma.userProfile.update({
       where: { userId },
-      update: data,
-      create: {
-        userId,
-        displayName: data.displayName,
-        avatar: data.avatar,
-        bio: data.bio,
-      },
+      data,
     });
   }
 

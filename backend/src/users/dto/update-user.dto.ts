@@ -7,6 +7,6 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(100)
-  name?: string;
+  @MaxLength(50)
+  username?: string;
 }
