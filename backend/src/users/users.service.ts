@@ -14,7 +14,7 @@ export class UsersService {
   {
     const passwordHash = await bcrypt.hash(dto.password, 12);
     try {
-      return this.prisma.user.create({
+      return await this.prisma.user.create({
         data: {
           username: dto.username,
           email: dto.email,
@@ -41,7 +41,8 @@ export class UsersService {
       omit  : { passwordHash: true },
     });
     
-    if (!user) throw new NotFoundException('User not found');
+    if (!user)
+      throw new NotFoundException('User not found');
 
     return user;
   }
