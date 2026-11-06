@@ -6,6 +6,8 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import * as bcrypt from 'bcrypt'
 
+// TODO: Authentication
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
@@ -82,6 +84,7 @@ export class UsersService {
     ]);
 
     return results[1];
+    // TODO: Return 409 Conflict when matches or submissions block user deletion.
   }
 
   async getProfile(userId: number) {
