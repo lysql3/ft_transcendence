@@ -7,6 +7,9 @@ import { UsersModule } from './users/users.module.js';
 import { EventsModule } from './events/events.module.js';
 import { LoggerModule } from 'nestjs-pino';
 import { loggerConfig } from './logger.config.js';
+import { ProblemsModule } from './problems/problems.module.js';
+import { LanguagesModule } from './languages/languages.module.js';
+import { SubmissionsModule } from './submissions/submissions.module.js';
 
 @Module({
   imports: [
@@ -15,6 +18,9 @@ import { loggerConfig } from './logger.config.js';
     UsersModule,
     EventsModule,
     LoggerModule.forRoot(loggerConfig),
+    ProblemsModule,
+    LanguagesModule,
+    SubmissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
