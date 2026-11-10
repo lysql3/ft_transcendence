@@ -11,11 +11,11 @@ type NavBarProps = {
   activePath?: string;
 };
 
-export const NavBar = ({
+export function NavBar({
   links,
   homeHref = "/",
   activePath = "/",
-}: NavBarProps) => {
+}: NavBarProps) {
   const [open, setOpen] = useState(false);
 
   const isActive = (href: string) =>
@@ -106,4 +106,4 @@ export const NavBar = ({
       )}
     </header>
   );
-};
+}

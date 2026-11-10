@@ -13,12 +13,12 @@ const sizes: Record<LogoSize, string> = {
   lg: "text-3xl md:text-5xl",
 };
 
-export const Logo = ({
+export function Logo({
   name = "CodeArena",
   size = "md",
   className = "",
   ...rest
-}: LogoProps) => {
+}: LogoProps) {
   return (
     <span
       role="img"
@@ -37,4 +37,4 @@ export const Logo = ({
       </span>
     </span>
   );
-};
+}

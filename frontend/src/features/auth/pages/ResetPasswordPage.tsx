@@ -59,7 +59,7 @@ function RecoveryCard() {
   );
 }
 
-export function ResetPasswordPage() {
+export default function ResetPasswordPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-gutter py-8">
       <MatrixRain />

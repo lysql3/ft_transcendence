@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { MatrixRain } from "@/components/ui/MatrixRain";
 import { Button } from "@/components/ui/Button";
 
-export function VerifySuccessPage() {
+export default function VerifySuccessPage() {
   const navigate = useNavigate();
 
   return (

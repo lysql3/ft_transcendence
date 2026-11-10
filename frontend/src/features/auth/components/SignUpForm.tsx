@@ -13,12 +13,12 @@ import {
   RegisterSchema,
   type RegisterFormData,
 } from "@/features/auth/schemas/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const linkClass =
   "text-accent underline underline-offset-4 transition-colors duration-(--duration) hover:text-accent/80";
 
-export const SignUpForm = ({ className }: { className?: string }) => {
+export function SignUpForm({ className }: { className?: string }) {
   const {
     register,
     handleSubmit,
@@ -28,9 +28,16 @@ export const SignUpForm = ({ className }: { className?: string }) => {
     resolver: zodResolver(RegisterSchema),
   });
 
+  const navigate = useNavigate();
+
   const onSubmit = async (data: RegisterFormData) => {
     // TODO: call your register API here.
     console.log("Sign up submitted for:", data.email);
+
+    navigate("/verify-email-notice", {
+      state: { allowed: true },
+      replace: true,
+    });
   };
 
   return (
@@ -142,4 +149,4 @@ export const SignUpForm = ({ className }: { className?: string }) => {
       </CardFooter>
     </Card>
   );
-};
+}

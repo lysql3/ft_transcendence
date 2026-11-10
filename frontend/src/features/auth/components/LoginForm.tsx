@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 const linkClass =
   "text-accent underline underline-offset-4 transition-colors duration-(--duration) hover:text-accent/80";
 
-export const LoginForm = ({ className }: { className?: string }) => {
+export function LoginForm({ className }: { className?: string }) {
   const {
     register,
     handleSubmit,
@@ -28,6 +28,7 @@ export const LoginForm = ({ className }: { className?: string }) => {
   const onSubmit = async (data: LoginFormData) => {
     // TODO: call your login API here.
     console.log("Login submitted for:", data.email);
+
   };
 
   return (
@@ -94,4 +95,4 @@ export const LoginForm = ({ className }: { className?: string }) => {
       </CardFooter>
     </Card>
   );
-};
+}
