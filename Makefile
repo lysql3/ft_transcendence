@@ -1,13 +1,12 @@
 COMPOSE			= docker compose
-ENV_DEV			= .env.dev
-ENV_PROD		= .env.prod
+ENV_FILE		= .env
 
 COMPOSE_BASE	= docker-compose.base.yml
 COMPOSE_DEV		= docker-compose.dev.yml
 COMPOSE_PROD	= docker-compose.prod.yml
 
-CMD_DEV			= $(COMPOSE) --env-file $(ENV_DEV) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
-CMD_PROD		= $(COMPOSE) --env-file $(ENV_PROD) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
+CMD_DEV			= $(COMPOSE) --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
+CMD_PROD		= $(COMPOSE) --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
 
 RESET	= \033[0m
 BOLD	= \033[1m
@@ -19,22 +18,43 @@ MAGENTA	= \033[35m
 .PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
 	backend backend-d build-backend \
         prod prod-d build-prod down-prod restart-prod logs-prod \
-	down clean fclean docker-clean test test-e2e lint build-local
+	down clean fclean docker-clean init-env test test-e2e lint build-local
+
+init-env:
+	@if [ ! -f .env ]; then \
+		cp .env.example .env; \
+		echo "Created .env from .env.example"; \
+	fi
+	@if ! grep -Eq '^BETTER_AUTH_SECRET=.+$$' .env || grep -q '^BETTER_AUTH_SECRET=generate-a-long-random-value$$' .env; then \
+		secret=$$(openssl rand -base64 32); \
+		if grep -q '^BETTER_AUTH_SECRET=' .env; then \
+			sed -i "s|^BETTER_AUTH_SECRET=.*$$|BETTER_AUTH_SECRET=$$secret|" .env; \
+		else \
+			printf '\nBETTER_AUTH_SECRET=%s\n' "$$secret" >> .env; \
+		fi; \
+		echo "Generated BETTER_AUTH_SECRET in .env"; \
+	fi
+	@if ! grep -q '^BETTER_AUTH_URL=' .env; then \
+		printf 'BETTER_AUTH_URL=http://localhost:3000\n' >> .env; \
+	fi
+	@if ! grep -q '^FRONTEND_URL=' .env; then \
+		printf 'FRONTEND_URL=http://localhost:5173\n' >> .env; \
+	fi
 
 # dev
-dev: build-dev
+dev: init-env build-dev
 	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
 	$(CMD_DEV) up -d postgres adminer
 	$(CMD_DEV) run --rm backend-migrate
-	$(CMD_DEV) up --no-deps backend frontend
+	$(CMD_DEV) up --no-deps backend frontend frontend-nginx
 
-dev-d: build-dev
+dev-d: init-env build-dev
 	@echo "$(GREEN)Starting development environment in detached mode…$(RESET)"
 	$(CMD_DEV) up -d postgres adminer
 	$(CMD_DEV) run --rm backend-migrate
-	$(CMD_DEV) up -d --no-deps backend frontend
+	$(CMD_DEV) up -d --no-deps backend frontend frontend-nginx
 
-build-dev:
+build-dev: init-env
 	@echo "$(CYAN)Building dev images (target: dev)…$(RESET)"
 	$(CMD_DEV) build
 
@@ -48,48 +68,48 @@ logs-dev:
 	$(CMD_DEV) logs -f
 
 # postres and backend and dependencies
-backend: build-backend
+backend: init-env build-backend
 	@echo "$(GREEN)Starting backend and dependency services…$(RESET)"
 	$(CMD_DEV) up -d postgres
 	$(CMD_DEV) run --rm backend-migrate
 	$(CMD_DEV) up --no-deps backend
 
-backend-d: build-backend
+backend-d: init-env build-backend
 	@echo "$(GREEN)Starting backend and dependency services in detached mode…$(RESET)"
 	$(CMD_DEV) up -d postgres
 	$(CMD_DEV) run --rm backend-migrate
 	$(CMD_DEV) up -d --no-deps backend
 
-build-backend:
+build-backend: init-env
 	@echo "$(CYAN)Building backend and dependency images…$(RESET)"
 	$(CMD_DEV) build postgres backend-migrate backend
 
-postgres: build-postgres
+postgres: init-env build-postgres
 	@echo "$(GREEN)Starting postgres and dependency services…$(RESET)"
 	$(CMD_DEV) up postgres
 
-postgres-d: build-postgres
+postgres-d: init-env build-postgres
 	@echo "$(GREEN)Starting postgres and dependency services in detached mode…$(RESET)"
 	$(CMD_DEV) up -d postgres
 
-build-postgres:
+build-postgres: init-env
 	@echo "$(CYAN)Building postgres and dependency images…$(RESET)"
 	$(CMD_DEV) build postgres backend-migrate
 
 # prod
-prod: build-prod
+prod: init-env build-prod
 	@echo "$(MAGENTA)Starting production environment…$(RESET)"
 	$(CMD_PROD) up -d postgres
 	$(CMD_PROD) run --rm backend-migrate
 	$(CMD_PROD) up --no-deps backend frontend
 
-prod-d: build-prod
+prod-d: init-env build-prod
 	@echo "$(MAGENTA)Starting production environment in detached mode…$(RESET)"
 	$(CMD_PROD) up -d postgres
 	$(CMD_PROD) run --rm backend-migrate
 	$(CMD_PROD) up -d --no-deps backend frontend
 
-build-prod:
+build-prod: init-env
 	@echo "$(CYAN)Building production images (target: prod)…$(RESET)"
 	$(CMD_PROD) build
 
@@ -124,12 +144,11 @@ docker-clean:
 	sudo $(CMD_PROD) down --volumes --rmi all --remove-orphans 2>/dev/null || true
 
 # tests
-test:
+test: init-env
 	@echo "$(CYAN)Running backend unit tests…$(RESET)"
 	cd backend && npm test
 
-test-e2e:
-	cp .env.dev backend/.env
+test-e2e: init-env
 	@echo "Running backend e2e tests..."
 	cd backend && DATABASE_URL=postgresql://user:devpassword@localhost:5432/transcendence_dev npm run test:e2e
 
@@ -150,8 +169,8 @@ help:
 	@echo "$(BOLD)$(CYAN)ft_transcendence$(RESET) – Management Commands:"
 	@echo ""
 	@echo "  $(BOLD)$(GREEN)[Development Environment]$(RESET)"
-	@echo "    $(BOLD)make dev$(RESET)          Start dev containers with live reload (attached logs)"
-	@echo "    $(BOLD)make dev-d$(RESET)        Start dev containers in detached background mode"
+	@echo "    $(BOLD)make dev$(RESET)          Start dev containers with live reload and HTTPS (attached logs)"
+	@echo "    $(BOLD)make dev-d$(RESET)        Start dev containers in detached mode with HTTPS"
 	@echo "    $(BOLD)make build-dev$(RESET)    Build development images (target: dev)"
 	@echo "    $(BOLD)make down-dev$(RESET)     Stop dev containers"
 	@echo "    $(BOLD)make restart-dev$(RESET)  Restart dev containers"
