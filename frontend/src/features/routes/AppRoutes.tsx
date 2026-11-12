@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 
-import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import SignInPage from "@/features/auth/pages/SignUpPage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
@@ -9,14 +8,17 @@ import ResetLinkSentPage from "@/features/auth/pages/ResetLinkSentPage";
 import VerifyEmailNoticePage from "@/features/auth/pages/VerifyEmailNoticePage";
 import VerifySuccessPage from "@/features/auth/pages/VerifySuccessPage";
 import PasswordResetSuccessPage from "@/features/auth/pages/PasswordResetSuccessPage";
+
+import LandingPage from "@/pages/LandingPage";
 import Dashboard from "@/pages/Dashboard";
+import ProfilePage from "@/pages/ProfilePage";
 
 import { ProtectedRoute } from "./guards/ProtectedRoute";
 import { GuestRoute } from "./guards/GuestRoute";
 import { TokenGuard } from "./guards/TokenGuard";
 import { ActionGuard } from "./guards/ActionGuard";
 
-const isAuthenticated = false; // Replace with your authentication logic
+const isAuthenticated = true; // Replace with your authentication logic
 
 export function AppRoutes() {
   return (
@@ -35,6 +37,7 @@ export function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       <Route element={<TokenGuard />}>

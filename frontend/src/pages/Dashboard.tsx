@@ -1,7 +1,5 @@
+import { NavBar } from "@/components/layout/NavBar";
+
 export default function Dashboard() {
-    return (
-        <main>
-            <h1>Dashboard</h1>
-        </main>
-    );
+  return <main><NavBar type="UserNavBar" /></main>;
 }
