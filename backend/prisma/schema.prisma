@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -8,22 +9,30 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
+  id           String   @id
   username     String   @unique @db.VarChar(50)
   email        String   @unique @db.VarChar(255)
-  passwordHash String   @db.VarChar(255)
   rating       Int      @default(0)
   createdAt    DateTime @default(now())
 
-  profile        UserProfile?
-  player1Matches Match[]      @relation("Player1Matches")
-  player2Matches Match[]      @relation("Player2Matches")
-  wonMatches     Match[]      @relation("WinnerMatches")
-  submissions    Submission[]
+  profile         UserProfile?
+  player1Matches  Match[]      @relation("Player1Matches")
+  player2Matches  Match[]      @relation("Player2Matches")
+  wonMatches      Match[]      @relation("WinnerMatches")
+  submissions     Submission[]
+  name            String
+  emailVerified   Boolean      @default(false)
+  image           String?
+  updatedAt       DateTime     @updatedAt
+  displayUsername String?
+  sessions        Session[]
+  accounts        Account[]
+
+  @@map("user")
 }
 
 model UserProfile {
-  userId      Int     @id
+  userId      String  @id
   displayName String? @db.VarChar(100)
   avatar      String?
   bio         String?
@@ -38,9 +47,9 @@ model Problem {
   difficulty  String   @db.VarChar(20)
   createdAt   DateTime @default(now())
 
-  testCases    TestCase[]
-  submissions  Submission[]
-  matches      Match[]
+  testCases   TestCase[]
+  submissions Submission[]
+  matches     Match[]
 }
 
 model TestCase {
@@ -63,25 +72,25 @@ model Language {
 model Match {
   id        Int      @id @default(autoincrement())
   problemId Int
-  player1Id Int
-  player2Id Int
-  winnerId  Int?
+  player1Id String
+  player2Id String
+  winnerId  String?
   status    String   @db.VarChar(30)
   score1    Int      @default(0)
   score2    Int      @default(0)
   createdAt DateTime @default(now())
 
-  problem      Problem      @relation(fields: [problemId], references: [id])
-  player1      User         @relation("Player1Matches", fields: [player1Id], references: [id])
-  player2      User         @relation("Player2Matches", fields: [player2Id], references: [id])
-  winner       User?        @relation("WinnerMatches", fields: [winnerId], references: [id])
-  submissions  Submission[]
+  problem     Problem      @relation(fields: [problemId], references: [id])
+  player1     User         @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2     User         @relation("Player2Matches", fields: [player2Id], references: [id])
+  winner      User?        @relation("WinnerMatches", fields: [winnerId], references: [id])
+  submissions Submission[]
 }
 
 model Submission {
   id          Int      @id @default(autoincrement())
   matchId     Int?
-  userId      Int
+  userId      String
   problemId   Int
   languageId  Int
   codeContent String
@@ -92,4 +101,52 @@ model Submission {
   user     User     @relation(fields: [userId], references: [id])
   problem  Problem  @relation(fields: [problemId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
