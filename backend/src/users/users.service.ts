@@ -49,6 +49,8 @@ export class UsersService {
     return user;
   }
 
+  // TODO : remove updating password via update and create
+  //		function update password 
   async update(id: number, data: UpdateUserDto) {
     await this.findOne(id);
 
@@ -103,6 +105,15 @@ export class UsersService {
       where: { userId },
       data,
     });
+  }
+
+  async	getLeadrBoard() {
+	  return this.prisma.user.findMany({
+		  orderBy: { rating: 'desc'},
+		  take: 50,
+		  omit: { passwordHash: true},
+		  include: { profile: true},
+	  });
   }
 
 }

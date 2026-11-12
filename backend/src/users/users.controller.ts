@@ -39,6 +39,11 @@ export class UsersController {
     return this.usersService.getProfile(id);
   }
 
+  @Get('leaderboard')
+  getLeaderBoard() {
+	  return this.usersService.getLeaderBoard();
+  }
+
   @Patch(':id/profile')
   updateProfile(
     @Param('id', ParseIntPipe) id: number,
