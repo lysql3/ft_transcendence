@@ -1,13 +1,13 @@
 import type { ElementType, HTMLAttributes, ReactNode } from "react";
 
-type CardVariant = "glass" | "solid" | "outline" | "flat";
+type CardVariant = "glass" | "solid" | "gradient" | "outline" | "flat";
 type CardPadding = "none" | "sm" | "md" | "lg";
 
 type CardProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode;
   /** Rendered element, e.g. "section" or "article". Defaults to "div". */
   as?: ElementType;
-  /** glass = see-through + blur, solid = opaque surface, outline = border only. */
+  /** glass = see-through + blur, solid = opaque, gradient = card-to-background, outline = border only. */
   variant?: CardVariant;
   padding?: CardPadding;
   /** Hover effect: accent border, soft glow and a small lift. */
@@ -22,6 +22,7 @@ const cx = (...parts: (string | false | undefined)[]) =>
 const variants: Record<CardVariant, string> = {
   glass: "bg-card/10 backdrop-blur-glass shadow-lg shadow-black/20",
   solid: "bg-card text-card-foreground",
+  gradient: "bg-linear-to-br from-card to-background text-card-foreground",
   outline: "bg-transparent",
   flat: "border-0 bg-transparent",
 };

@@ -390,7 +390,7 @@ function LandingPage() {
   return (
     <>
       <MatrixRain />
-      <NavBar links={[]} homeHref="/" activePath="/" />
+      <NavBar/>
 
       <main className="mx-auto flex w-full max-w-page flex-col gap-section px-gutter py-section">
         <div className="grid grid-cols-1 items-stretch gap-gutter lg:grid-cols-2">

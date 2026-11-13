@@ -1,27 +1,25 @@
-import { forwardRef, useId, useState } from "react";
-import type { InputHTMLAttributes } from "react";
+import { useId, useState } from "react";
+import type { ComponentPropsWithRef } from "react";
 
-export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+export type InputProps = ComponentPropsWithRef<"input"> & {
   label?: string;
   hint?: string;
   error?: string;
   wrapperClassName?: string;
 };
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  {
-    label,
-    hint,
-    error,
-    type = "text",
-    id,
-    disabled,
-    className = "",
-    wrapperClassName = "",
-    ...props
-  },
+export function Input({
   ref,
-) {
+  label,
+  hint,
+  error,
+  type = "text",
+  id,
+  disabled,
+  className = "",
+  wrapperClassName = "",
+  ...props
+}: InputProps) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const hintId = `${inputId}-hint`;
@@ -86,4 +84,4 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       ) : null}
     </div>
   );
-});
+}

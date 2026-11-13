@@ -10,7 +10,7 @@ const RESEND_SECONDS = 30;
 const linkClass =
   "text-accent underline underline-offset-4 transition-colors duration-(--duration) hover:text-accent/80";
 
-export function VerifyEmailNoticePage() {
+export default function VerifyEmailNoticePage() {
   // The sign up form passes the email along: navigate("/verify-email", { state: { email } })
   const location = useLocation();
   const email = (location.state as { email?: string } | null)?.email;

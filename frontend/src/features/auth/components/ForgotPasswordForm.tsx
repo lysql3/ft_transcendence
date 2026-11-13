@@ -1,11 +1,19 @@
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ForgotPasswordSchema, type ForgotPasswordFormData } from "@/features/auth/schemas/auth";
-import { Link } from "react-router-dom";
+import {
+  ForgotPasswordSchema,
+  type ForgotPasswordFormData,
+} from "@/features/auth/schemas/auth";
+import { Link, useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
 const linkClass =
@@ -21,23 +29,36 @@ export function ForgotPasswordForm({ className = "" }: { className?: string }) {
     resolver: zodResolver(ForgotPasswordSchema),
   });
 
+  const navigate = useNavigate();
+  
   const onSubmit = async (data: ForgotPasswordFormData) => {
     // TODO: call your forgot password API here.
     console.log("Forgot password submitted for:", data.email);
+
+    navigate("/reset-link-sent", {
+      state: { allowed: true },
+      replace: true,
+    });
   };
 
   return (
     <Card variant="solid" corners className={`flex flex-col ${className}`}>
       <CardHeader className="flex flex-col items-center justify-center gap-2 pb-2">
         <Logo />
-        <h2 className="text-xl font-bold uppercase tracking-ui text-foreground">Forgot password?</h2>
+        <h2 className="text-xl font-bold uppercase tracking-ui text-foreground">
+          Forgot password?
+        </h2>
         <p className="text-center text-xs text-muted-foreground">
           No problem. We'll send a reset link to your inbox.
         </p>
       </CardHeader>
 
       <CardContent className="flex-1">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-4"
+        >
           <Input
             label="Email:"
             type="email"
@@ -61,7 +82,9 @@ export function ForgotPasswordForm({ className = "" }: { className?: string }) {
 
           <div className="mt-4 flex items-center justify-center gap-2">
             <ShieldCheck aria-hidden="true" className="size-4 text-accent" />
-            <p className="text-center text-xs text-muted-foreground">Reset links expire after 30 minutes.</p>
+            <p className="text-center text-xs text-muted-foreground">
+              Reset links expire after 30 minutes.
+            </p>
           </div>
         </form>
       </CardContent>
