@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Prisma } from '../generated/prisma/client.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { UpdatePasswordDto } from './dto/update-password.dto.js';
 import * as bcrypt from 'bcrypt'
 
 // TODO: Authentication
@@ -47,6 +48,30 @@ export class UsersService {
       throw new NotFoundException('User not found');
 
     return user;
+  }
+
+  async updatePassword(id: number, dto: UpdatePasswordDto) {
+	  const user = await this.prisma.user.findUnique({
+		  where: { id },
+	  });
+
+	  if (!user) {
+		  throw new NotFoundException('User not found');
+	  }
+
+	  const isPasswordValid = await bcrypt.compare(dto.oldPassword, user.passwordHash);
+	  if (!isPasswordValid) {
+		  throw new UnauthorizedException('Incorrect old password');
+	  }
+
+	  const newPasswordHash = await bcrypt.hash(dto.newPassword, 12);
+
+	  await this.prisma.user.update({
+		  where: { id },
+		  data: { passwordHash: newPasswordHash },
+	  });
+
+	  return { message: 'Password updated succefuly' };
   }
 
   // TODO : remove updating password via update and create
@@ -107,7 +132,7 @@ export class UsersService {
     });
   }
 
-  async	getLeadrBoard() {
+  async	getLeaderBoard() {
 	  return this.prisma.user.findMany({
 		  orderBy: { rating: 'desc'},
 		  take: 50,

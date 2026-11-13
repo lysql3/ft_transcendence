@@ -11,11 +11,17 @@ import {
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { UpdatePasswordDto } from './dto/update-password.dto.js';
 import { UsersService } from './users.service.js';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('leaderboard')
+  getLeaderBoard() {
+	  return this.usersService.getLeaderBoard();
+  }
 
   @Post()
   create(@Body() data: CreateUserDto) {
@@ -39,17 +45,20 @@ export class UsersController {
     return this.usersService.getProfile(id);
   }
 
-  @Get('leaderboard')
-  getLeaderBoard() {
-	  return this.usersService.getLeaderBoard();
-  }
-
   @Patch(':id/profile')
   updateProfile(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: UpdateProfileDto,
   ) {
     return this.usersService.updateProfile(id, data);
+  }
+
+  @Patch(':id/password')
+  updatePassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdatePasswordDto,
+  ) {
+    return this.usersService.updatePassword(id, dto);
   }
 
   @Patch(':id')
