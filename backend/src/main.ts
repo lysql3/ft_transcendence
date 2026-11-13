@@ -9,7 +9,12 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.enableCors();
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(
+	  new ValidationPipe({
+		  whitelist: true,
+		  forbidNonWhitelisted: true,
+	  }),
+  );
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0'); // 0.0.0.0 matters in Docker
 }
 await bootstrap();
