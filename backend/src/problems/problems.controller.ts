@@ -3,15 +3,20 @@ import { ProblemsService } from './problems.service.js';
 
 @Controller('problems')
 export class ProblemsController {
-  constructor(private readonly problemsService: ProblemsService) {}
+	constructor(private readonly problemsService: ProblemsService) {}
 
-  @Get()
-  findAll() {
-    return this.problemsService.findAll();
-  }
+	@Get()
+	findAll() {
+		return this.problemsService.findAll();
+	}
 
 	@Get(':id')
 	findOne(@Param('id', ParseIntPipe) id: number) {
-	  return this.problemsService.findOne(id);
+		return this.problemsService.findOne(id);
+	}
+
+	@Get(':id/testcases')
+	getTestCases(@Param('id', ParseIntPipe) id: number) {
+		return this.problemsService.getTestCases(id)
 	}
 }

@@ -74,8 +74,6 @@ export class UsersService {
 	  return { message: 'Password updated succefuly' };
   }
 
-  // TODO : remove updating password via update and create
-  //		function update password 
   async update(id: number, data: UpdateUserDto) {
     await this.findOne(id);
 
