@@ -24,6 +24,8 @@ services:
         condition: service_completed_successfully
     networks:
       - ft_tra_networks
+    volumes:
+      - ./data/problems/:/app/data/problems:ro
 
   backend-migrate:
     build:
