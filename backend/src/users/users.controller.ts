@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import {
   AllowAnonymous,
   OptionalAuth,
@@ -48,17 +56,34 @@ export class UsersController {
   }
 
   @Patch(':id/profile')
-  updateProfile(@Param('id') id: string, @Body() data: UpdateProfileDto) {
+  updateProfile(
+    @Param('id') id: string,
+    @Body() data: UpdateProfileDto,
+    @Session() session: UserSession,
+  ) {
+    this.assertOwnUser(id, session);
     return this.usersService.updateProfile(id, data);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() data: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() data: UpdateUserDto,
+    @Session() session: UserSession,
+  ) {
+    this.assertOwnUser(id, session);
     return this.usersService.update(id, data);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string, @Session() session: UserSession) {
+    this.assertOwnUser(id, session);
     return this.usersService.remove(id);
+  }
+
+  private assertOwnUser(id: string, session: UserSession) {
+    if (session.user.id !== id) {
+      throw new ForbiddenException('You can only modify your own user account');
+    }
   }
 }
