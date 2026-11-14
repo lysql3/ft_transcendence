@@ -5,7 +5,7 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     env_file:
-      - .env.dev
+      - .env
 
   adminer:
     image: adminer:4.8.1
@@ -25,7 +25,7 @@ services:
     ports:
       - "${PORT:-3000}:3000"
     env_file:
-      - .env.dev
+      - .env
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -36,7 +36,7 @@ services:
 
   backend-migrate:
     env_file:
-      - .env.dev
+      - .env
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -46,12 +46,24 @@ services:
     build:
       target: dev
     ports:
-      - "${FRONTEND_PORT:-5173}:5173"
+      - "${FRONTEND_DEV_PORT:-5173}:5173"
     env_file:
-      - .env.dev
+      - .env
     environment:
       - NODE_ENV=development
       - BACKEND_URL=http://backend:3000
     volumes:
       - ./frontend:/app
       - /app/node_modules
+
+  frontend-nginx:
+    build:
+      context: ./frontend
+    depends_on:
+      - frontend
+    ports:
+      - "${FRONTEND_HTTPS_PORT:-5443}:443"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development

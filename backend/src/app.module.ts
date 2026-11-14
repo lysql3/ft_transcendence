@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module.js';
 import { EventsModule } from './events/events.module.js';
 import { LoggerModule } from 'nestjs-pino';
 import { loggerConfig } from './logger.config.js';
+import { AuthModule } from '@thallesp/nestjs-better-auth';
+import { auth } from './auth.js';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { loggerConfig } from './logger.config.js';
     UsersModule,
     EventsModule,
     LoggerModule.forRoot(loggerConfig),
+    AuthModule.forRoot({ auth }),
   ],
   controllers: [AppController],
   providers: [AppService],

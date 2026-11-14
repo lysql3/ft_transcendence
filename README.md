@@ -1,4 +1,5 @@
 # ft_transcendence
+
 work in progress
 A modern full-stack application built with **NestJS**, **React + Tailwind CSS (Vite)**, and **PostgreSQL**, managed by multi-stage Docker containerization and orchestrated via Docker Compose.
 
@@ -60,13 +61,12 @@ The application is structured into modular microservices communicating across an
 
 ## ⚙️ Environment Configuration
 
-The project supports three environment files:
+The project uses one environment template and one local environment file:
 
-| File                                   | Purpose                                                                   |
-| -------------------------------------- | ------------------------------------------------------------------------- |
-| [`.env.example`](file:///.env.example) | Template listing all configurable variables with comments.                |
-| [`.env.dev`](file:///.env.dev)         | Default configuration for local development and `docker-compose.dev.yml`. |
-| [`.env.prod`](file:///.env.prod)       | Production configuration used by `docker-compose.prod.yml`.               |
+| File                                   | Purpose                                                                |
+| -------------------------------------- | ---------------------------------------------------------------------- |
+| [`.env.example`](file:///.env.example) | Committed template listing all configurable variables.                 |
+| `.env`                                 | Local copy used by Docker Compose and local commands; never commit it. |
 
 ### Key Environment Variables
 
@@ -78,9 +78,26 @@ POSTGRES_DB=transcendence_dev              # Database name
 POSTGRES_PORT=5432                         # Host port for database (dev only)
 PORT=3000                                  # Backend port
 DATABASE_URL=postgresql://...              # Full connection string
-FRONTEND_PORT=5173                         # Dev port (5173) or Prod port (443)
+BETTER_AUTH_SECRET=...                     # Long random secret; never commit
+BETTER_AUTH_URL=http://localhost:3000     # Backend auth URL
+FRONTEND_URL=http://localhost:5173        # Trusted frontend origin
+FRONTEND_DEV_PORT=5173                     # Vite dev port
+FRONTEND_HTTPS_PORT=5443                   # Dev Nginx HTTPS port
+FRONTEND_PROD_PORT=443                     # Production Nginx HTTPS port
+FRONTEND_HTTP_PORT=80                      # Production HTTP port
 BACKEND_URL=http://backend:3000            # Backend target for frontend reverse proxy
 ```
+
+Create the local environment file and generate the Better Auth secret before
+starting the backend:
+
+```bash
+cp .env.example .env
+sed -i "s|^BETTER_AUTH_SECRET=.*|BETTER_AUTH_SECRET=$(openssl rand -base64 32)|" .env
+```
+
+Keep `.env` local. The secret signs sessions and changing it invalidates
+existing sessions.
 
 ---
 
@@ -98,7 +115,7 @@ make dev
 make dev-d
 
 # Check running containers
-docker compose --env-file .env.dev -f docker-compose.base.yml -f docker-compose.dev.yml ps
+docker compose --env-file .env -f docker-compose.base.yml -f docker-compose.dev.yml ps
 
 # View service logs
 make logs-dev
@@ -132,7 +149,7 @@ make logs-prod
 make down-prod
 ```
 
-- **Application (Nginx):** Visit `https://localhost:443` (or configured `FRONTEND_PORT`); accept the self-signed certificate warning
+- **Application (Nginx):** Visit `https://localhost:443` (or configured `FRONTEND_PROD_PORT`); accept the self-signed certificate warning
 - **API Endpoint:** Visit `https://localhost:443/api/health`
 - **Proxy check:** Visit `https://localhost:443/api/whoami` to inspect the trusted client IP, protocol, and secure flag
 

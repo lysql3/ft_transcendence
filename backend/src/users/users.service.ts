@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 
@@ -8,33 +7,23 @@ import { UpdateProfileDto } from './dto/update-profile.dto.js';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateUserDto) {
-    return this.prisma.user.create({
-      data: {
-        username: dto.username,
-        email: dto.email,
-        passwordHash: dto.password, // Hash this later with bcrypt!
-      },
-    });
-  }
-
   findAll() {
     return this.prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
-  update(id: number, data: UpdateUserDto) {
+  update(id: string, data: UpdateUserDto) {
     return this.prisma.user.update({ where: { id }, data });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.prisma.user.delete({ where: { id } });
   }
 
-  async getProfile(userId: number) {
+  async getProfile(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
 
@@ -46,7 +35,7 @@ export class UsersService {
     return profile;
   }
 
-  async updateProfile(userId: number, data: UpdateProfileDto) {
+  async updateProfile(userId: string, data: UpdateProfileDto) {
     return this.prisma.userProfile.upsert({
       where: { userId },
       update: data,

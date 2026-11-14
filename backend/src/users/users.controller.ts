@@ -2,13 +2,17 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
-  Post,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto.js';
+import {
+  AllowAnonymous,
+  OptionalAuth,
+  Session,
+} from '@thallesp/nestjs-better-auth';
+import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { UsersService } from './users.service.js';
@@ -17,43 +21,69 @@ import { UsersService } from './users.service.js';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() data: CreateUserDto) {
-    return this.usersService.create(data);
-  }
-
   @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
+  @Get('me')
+  getCurrentUser(@Session() session: UserSession) {
+    return { user: session.user };
+  }
+
+  @Get('public')
+  @AllowAnonymous()
+  getPublic() {
+    return { message: 'Public route' };
+  }
+
+  @Get('optional')
+  @OptionalAuth()
+  getOptional(@Session() session: UserSession) {
+    return { authenticated: !!session };
+  }
+
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   // ---------------------------
 
   @Get(':id/profile')
-  getProfile(@Param('id', ParseIntPipe) id: number) {
+  getProfile(@Param('id') id: string) {
     return this.usersService.getProfile(id);
   }
 
   @Patch(':id/profile')
   updateProfile(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() data: UpdateProfileDto,
+    @Session() session: UserSession,
   ) {
+    this.assertOwnUser(id, session);
     return this.usersService.updateProfile(id, data);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() data: UpdateUserDto,
+    @Session() session: UserSession,
+  ) {
+    this.assertOwnUser(id, session);
     return this.usersService.update(id, data);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string, @Session() session: UserSession) {
+    this.assertOwnUser(id, session);
     return this.usersService.remove(id);
+  }
+
+  private assertOwnUser(id: string, session: UserSession) {
+    if (session.user.id !== id) {
+      throw new ForbiddenException('You can only modify your own user account');
+    }
   }
 }
