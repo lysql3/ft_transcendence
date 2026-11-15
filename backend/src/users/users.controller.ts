@@ -7,11 +7,7 @@ import {
   Param,
   Patch,
 } from '@nestjs/common';
-import {
-  AllowAnonymous,
-  OptionalAuth,
-  Session,
-} from '@thallesp/nestjs-better-auth';
+import { Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
@@ -29,18 +25,6 @@ export class UsersController {
   @Get('me')
   getCurrentUser(@Session() session: UserSession) {
     return { user: session.user };
-  }
-
-  @Get('public')
-  @AllowAnonymous()
-  getPublic() {
-    return { message: 'Public route' };
-  }
-
-  @Get('optional')
-  @OptionalAuth()
-  getOptional(@Session() session: UserSession) {
-    return { authenticated: !!session };
   }
 
   @Get(':id')
@@ -87,3 +71,15 @@ export class UsersController {
     }
   }
 }
+
+// @Get('public')
+// @AllowAnonymous()
+// getPublic() {
+//   return { message: 'Public route' };
+// }
+
+// @Get('optional')
+// @OptionalAuth()
+// getOptional(@Session() session: UserSession) {
+//   return { authenticated: !!session };
+// }
