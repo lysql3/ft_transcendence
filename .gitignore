@@ -4,6 +4,10 @@ backend/src/generated/prisma/
 .pnp
 .pnp.js
 
+# cookie files
+jar.txt
+cookie.txt
+
 # Production build outputs
 dist/
 build/
