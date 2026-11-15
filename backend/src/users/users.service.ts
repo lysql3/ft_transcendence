@@ -7,6 +7,16 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   update(id: string, data: UpdateUserDto) {
-    return this.prisma.user.update({ where: { id }, data });
+    return this.prisma.user.update({
+      where: { id },
+      data: { name: data.name },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        image: true,
+        createdAt: true,
+      },
+    });
   }
 }
