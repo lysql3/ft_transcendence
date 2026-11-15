@@ -7,6 +7,8 @@ backend/src/generated/prisma/
 # cookie files
 jar.txt
 cookie.txt
+cookies.txt
+cookies-*.txt
 
 # Production build outputs
 dist/
