@@ -1,5 +1,5 @@
 # Base Stage: Shared dependencies & runtime
-FROM node:24-alpine AS base
+FROM node:26-alpine AS base
 
 RUN apk add --no-cache openssl
 
