@@ -25,7 +25,7 @@ services:
     networks:
       - ft_tra_networks
     volumes:
-      - ./data/problems:/app/data/problems:ro
+      - ./data/problems:/app/data/problems
 
   backend-migrate:
     build:

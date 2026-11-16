@@ -9,6 +9,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { loggerConfig } from './logger.config.js';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { auth } from './auth.js';
+import { ProblemModule } from './problem/problem.module.js';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { auth } from './auth.js';
     EventsModule,
     LoggerModule.forRoot(loggerConfig),
     AuthModule.forRoot({ auth }),
+    ProblemModule,
   ],
   controllers: [AppController],
   providers: [AppService],
