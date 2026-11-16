@@ -5,8 +5,8 @@ COMPOSE_BASE	= docker-compose.base.yml
 COMPOSE_DEV		= docker-compose.dev.yml
 COMPOSE_PROD	= docker-compose.prod.yml
 
-CMD_DEV			= $(COMPOSE) --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
-CMD_PROD		= $(COMPOSE) --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
+CMD_DEV			= $(COMPOSE) -p "dev" --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
+CMD_PROD		= $(COMPOSE) -p "prod" --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
 
 RESET	= \033[0m
 BOLD	= \033[1m
@@ -171,14 +171,14 @@ help:
 	@echo "  $(BOLD)$(GREEN)[Development Environment]$(RESET)"
 	@echo "    $(BOLD)make dev$(RESET)          Start dev containers with live reload and HTTPS (attached logs)"
 	@echo "    $(BOLD)make dev-d$(RESET)        Start dev containers in detached mode with HTTPS"
-	@echo "    $(BOLD)make build-dev$(RESET)    Build development images (target: dev)"
-	@echo "    $(BOLD)make down-dev$(RESET)     Stop dev containers"
-	@echo "    $(BOLD)make restart-dev$(RESET)  Restart dev containers"
 	@echo "    $(BOLD)make logs-dev$(RESET)     Follow dev container logs"
 	@echo "    $(BOLD)make backend$(RESET)       Build and run backend with dependencies"
 	@echo "    $(BOLD)make backend-d$(RESET)     Run backend with dependencies in background"
 	@echo "    $(BOLD)make build-backend$(RESET) Build backend and dependency images"
 	@echo ""
+	@echo "    $(BOLD)make build-dev$(RESET)    Build development images (target: dev)"
+	@echo "    $(BOLD)make down-dev$(RESET)     Stop dev containers"
+	@echo "    $(BOLD)make restart-dev$(RESET)  Restart dev containers"
 	@echo "  $(BOLD)$(MAGENTA)[Production Environment]$(RESET)"
 	@echo "    $(BOLD)make prod$(RESET)         Start production containers (attached logs)"
 	@echo "    $(BOLD)make prod-d$(RESET)       Start production containers in detached mode"
