@@ -18,7 +18,7 @@ import { GuestRoute } from "./guards/GuestRoute";
 import { TokenGuard } from "./guards/TokenGuard";
 import { ActionGuard } from "./guards/ActionGuard";
 
-const isAuthenticated = true; // Replace with your authentication logic
+const isAuthenticated = false; // Replace with your authentication logic
 
 export function AppRoutes() {
   return (

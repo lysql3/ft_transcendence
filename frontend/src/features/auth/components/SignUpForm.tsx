@@ -7,38 +7,69 @@ import {
 import { Input } from "@/components/ui/Input";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { Check, X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   RegisterSchema,
   type RegisterFormData,
 } from "@/features/auth/schemas/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useEmailAuthSubmit } from "../hooks/useEmailAuthSubmit";
+import { GoogleSignInButton } from "./GoogleSignInButton";
+import { useState } from "react";
+
+const serverErrorFields: Record<string, "username" | "email" | "password"> = {
+  USERNAME_IS_ALREADY_TAKEN: "username",
+  USERNAME_TOO_SHORT: "username",
+  USERNAME_TOO_LONG: "username",
+  INVALID_USERNAME: "username",
+  USER_ALREADY_EXISTS: "email",
+  USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "email",
+  INVALID_EMAIL: "email",
+  PASSWORD_TOO_SHORT: "password",
+  PASSWORD_TOO_LONG: "password",
+};
 
 const linkClass =
   "text-accent underline underline-offset-4 transition-colors duration-(--duration) hover:text-accent/80";
 
 export function SignUpForm({ className }: { className?: string }) {
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
+    control,
     formState: { errors, isSubmitting, isValid },
   } = useForm<RegisterFormData>({
     mode: "onTouched",
     resolver: zodResolver(RegisterSchema),
   });
 
-  const navigate = useNavigate();
+  const password = useWatch({ control, name: "password", defaultValue: "" });
+  const passwordRequirements = [
+    { label: "At least 8 characters", met: password.length >= 8 },
+    { label: "One uppercase letter", met: /[A-Z]/.test(password) },
+    { label: "One lowercase letter", met: /[a-z]/.test(password) },
+    { label: "One number", met: /[0-9]/.test(password) },
+    { label: "One special character", met: /[^A-Za-z0-9]/.test(password) },
+  ];
 
-  const onSubmit = async (data: RegisterFormData) => {
-    // TODO: call your register API here.
-    console.log("Sign up submitted for:", data.email);
-
-    navigate("/verify-email-notice", {
-      state: { allowed: true },
-      replace: true,
-    });
-  };
+  const onSubmit = useEmailAuthSubmit<RegisterFormData>({
+    endpoint: "/api/auth/sign-up/email",
+    failureMessage: "Unable to create your account",
+    getPayload: (data) => ({
+      name: data.username,
+      username: data.username,
+      email: data.email,
+      password: data.password,
+    }),
+    errorFields: serverErrorFields,
+    clearErrors,
+    setError,
+  });
 
   return (
     <Card
@@ -61,11 +92,13 @@ export function SignUpForm({ className }: { className?: string }) {
             type="text"
             id="username"
             autoComplete="username"
+            maxLength={20}
+            autoCapitalize="none"
+            spellCheck={false}
             placeholder="Enter your username"
             {...register("username")}
             error={errors.username?.message}
           />
-
           <Input
             label="Email:"
             type="email"
@@ -75,17 +108,39 @@ export function SignUpForm({ className }: { className?: string }) {
             {...register("email")}
             error={errors.email?.message}
           />
-
-          <Input
-            label="Password:"
-            type="password"
-            id="password"
-            autoComplete="new-password"
-            placeholder="Enter your password"
-            {...register("password")}
-            error={errors.password?.message}
-          />
-
+          <div className="flex flex-col gap-2">
+            <Input
+              label="Password:"
+              type="password"
+              id="password"
+              autoComplete="new-password"
+              aria-describedby={`password-requirements${errors.password ? " password-error" : ""}`}
+              placeholder="Enter your password"
+              {...register("password")}
+              error={errors.password?.message}
+            />
+            <ul
+              id="password-requirements"
+              aria-label="Password requirements"
+              className="grid gap-1.5 text-xs sm:grid-cols-2"
+            >
+              {passwordRequirements.map(({ label, met }) => {
+                const Icon = met ? Check : X;
+                return (
+                  <li
+                    key={label}
+                    className={`flex items-center gap-2 ${met ? "text-success" : "text-muted-foreground"}`}
+                  >
+                    <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+                    <span className="sr-only">
+                      {met ? "Met: " : "Not met: "}
+                    </span>
+                    {label}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <Input
             label="Confirm Password:"
             type="password"
@@ -95,13 +150,14 @@ export function SignUpForm({ className }: { className?: string }) {
             {...register("confirmPassword")}
             error={errors.confirmPassword?.message}
           />
-
           <div className="flex flex-col gap-1 pt-1">
             <div className="flex items-start gap-2">
               <input
                 type="checkbox"
                 id="terms"
                 {...register("terms")}
+                aria-invalid={errors.terms ? true : undefined}
+                aria-describedby={errors.terms ? "terms-error" : undefined}
                 className="mt-0.5 size-4 shrink-0 cursor-pointer rounded-ui border-border bg-card accent-accent"
               />
               <label
@@ -120,22 +176,38 @@ export function SignUpForm({ className }: { className?: string }) {
               </label>
             </div>
             {errors.terms?.message && (
-              <p role="alert" className="text-xs text-destructive">
+              <p
+                id="terms-error"
+                role="alert"
+                className="text-xs text-destructive"
+              >
                 {errors.terms.message}
               </p>
             )}
           </div>
-
           <Button
             type="submit"
             variant="solid"
             size="lg"
             loading={isSubmitting}
-            disabled={!isValid}
+            disabled={!isValid || isGoogleSubmitting}
             className="mt-2 w-full"
           >
             Sign up
           </Button>
+
+          <GoogleSignInButton
+            label="Sign up with Google"
+            disabled={isSubmitting}
+            onStart={() => clearErrors("root")}
+            onError={(message) => setError("root", { type: "server", message })}
+            onLoadingChange={setIsGoogleSubmitting}
+          />
+          {errors.root?.message && (
+            <p role="alert" className="text-xs text-destructive text-center">
+              {errors.root.message}
+            </p>
+          )}
         </form>
       </CardContent>
 

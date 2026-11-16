@@ -24,8 +24,9 @@ export function Spinner({
     <span role="status" className={cn("inline-flex", className)} {...rest}>
       <span
         aria-hidden="true"
+        data-loading-spinner
         className={cn(
-          "inline-block rounded-full border-current border-t-transparent animate-spin motion-reduce:animate-none",
+          "inline-block rounded-full border-current border-t-transparent animate-spin",
           sizes[size],
         )}
       />
