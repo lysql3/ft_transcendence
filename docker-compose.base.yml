@@ -37,6 +37,8 @@ services:
       start_period: 30s
     networks:
       - ft_tra_networks
+    volumes:
+      - ./data/problems:/app/data/problems
 
   backend-migrate:
     build:

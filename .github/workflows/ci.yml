@@ -74,8 +74,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Prepare project env
+        run: make init-env
+
       - name: Validate Dev Docker Compose configuration
-        run: docker compose --env-file .env.example -f docker-compose.base.yml -f docker-compose.dev.yml config
+        run: docker compose --env-file .env -f docker-compose.base.yml -f docker-compose.dev.yml config
 
       - name: Validate Prod Docker Compose configuration
-        run: docker compose --env-file .env.example -f docker-compose.base.yml -f docker-compose.prod.yml config
+        run: docker compose --env-file .env -f docker-compose.base.yml -f docker-compose.prod.yml config

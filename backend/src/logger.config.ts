@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import type { IncomingMessage, ServerResponse } from 'http';
 
 type ReqLike = {
   id?: string;
@@ -73,8 +74,8 @@ export const loggerConfig = {
     },
 
     customLogLevel: (
-      _req: unknown,
-      res: { statusCode: number },
+      _req: IncomingMessage,
+      res: ServerResponse,
       error?: Error,
     ) => {
       if (error || res.statusCode >= 500) return 'error';
@@ -82,15 +83,11 @@ export const loggerConfig = {
       return 'info';
     },
 
-    genReqId: (
-      _req: unknown,
-      res: { setHeader: (name: string, value: string) => void },
-    ) => {
+    genReqId: (_req: IncomingMessage, res: ServerResponse) => {
       const id = randomUUID();
       res.setHeader('X-Request-Id', id);
       return id;
     },
-
     // Enable once you've confirmed the healthcheck lines show
     // userAgent "Wget" and ip 127.0.0.1 / ::1:
     // autoLogging: {
