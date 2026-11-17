@@ -66,7 +66,7 @@ const player: Player = {
   level: 190,
   xp: 700,
   xpToNextLevel: 2000,
-  rank: 25,
+  rank: 1,
   season: 1,
   isOnline: true,
   challengesSolved: 18,

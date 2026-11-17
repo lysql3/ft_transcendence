@@ -5,6 +5,7 @@ import type {
   UseFormClearErrors,
   UseFormSetError,
 } from "react-hook-form";
+import { authClient } from "../lib/authClient";
 
 type EmailAuthSubmitOptions<T extends FieldValues> = {
   endpoint: "/api/auth/sign-in/email" | "/api/auth/sign-up/email";
@@ -25,6 +26,7 @@ export function useEmailAuthSubmit<T extends FieldValues>({
   setError,
 }: EmailAuthSubmitOptions<T>) {
   const navigate = useNavigate();
+  const { refetch } = authClient.useSession();
 
   return async (data: T) => {
     clearErrors();
@@ -48,7 +50,7 @@ export function useEmailAuthSubmit<T extends FieldValues>({
         setError(field ?? "root", { type: "server", message }, { shouldFocus: !!field });
         return;
       }
-
+      await refetch();
       navigate("/dashboard", { replace: true });
     } catch {
       setError("root", {
