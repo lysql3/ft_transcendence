@@ -19,9 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare project env
-        run: make init-env
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -53,9 +50,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Prepare project env
-        run: make init-env
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
