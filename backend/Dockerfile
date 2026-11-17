@@ -1,11 +1,10 @@
 # Base Stage: Shared dependencies & runtime
-FROM node:24-alpine AS base
+FROM node:26-alpine AS base
 
 RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-ENV DATABASE_URL=postgresql://user:password@localhost:5432/database
 
 COPY package*.json ./
 
@@ -18,7 +17,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run prisma:generate
+RUN DATABASE_URL=postgresql://x:x@localhost:5432/x npm run prisma:generate
 
 EXPOSE 3000
 
@@ -31,7 +30,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run prisma:generate
+RUN DATABASE_URL=postgresql://x:x@localhost:5432/x npm run prisma:generate
 RUN npm run build
 
 # Production Stage: Minimal hardened runtime

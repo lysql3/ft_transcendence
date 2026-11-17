@@ -1,8 +1,11 @@
 services:
   postgres:
-    build:
-      context: ./database
+    image: postgres:16-alpine
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,6 +25,16 @@ services:
         condition: service_healthy
       backend-migrate:
         condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://127.0.0.1:$${PORT:-3000}/api/health >/dev/null || exit 1",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
     networks:
       - ft_tra_networks
     volumes:
@@ -44,7 +57,7 @@ services:
     restart: unless-stopped
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
     networks:
       - ft_tra_networks
 

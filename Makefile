@@ -5,8 +5,8 @@ COMPOSE_BASE	= docker-compose.base.yml
 COMPOSE_DEV		= docker-compose.dev.yml
 COMPOSE_PROD	= docker-compose.prod.yml
 
-CMD_DEV			= $(COMPOSE) --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
-CMD_PROD		= $(COMPOSE) --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
+CMD_DEV			= $(COMPOSE) -p "dev" --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
+CMD_PROD		= $(COMPOSE) -p "prod" --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
 
 RESET	= \033[0m
 BOLD	= \033[1m
@@ -44,15 +44,11 @@ init-env:
 # dev
 dev: init-env build-dev
 	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
-	$(CMD_DEV) up -d postgres adminer
-	$(CMD_DEV) run --rm backend-migrate
-	$(CMD_DEV) up --no-deps backend frontend frontend-nginx
+	$(CMD_DEV) up postgres adminer backend frontend frontend-nginx
 
 dev-d: init-env build-dev
 	@echo "$(GREEN)Starting development environment in detached mode…$(RESET)"
-	$(CMD_DEV) up -d postgres adminer
-	$(CMD_DEV) run --rm backend-migrate
-	$(CMD_DEV) up -d --no-deps backend frontend frontend-nginx
+	$(CMD_DEV) up -d postgres adminer backend frontend frontend-nginx
 
 build-dev: init-env
 	@echo "$(CYAN)Building dev images (target: dev)…$(RESET)"
@@ -70,44 +66,32 @@ logs-dev:
 # postres and backend and dependencies
 backend: init-env build-backend
 	@echo "$(GREEN)Starting backend and dependency services…$(RESET)"
-	$(CMD_DEV) up -d postgres
-	$(CMD_DEV) run --rm backend-migrate
-	$(CMD_DEV) up --no-deps backend
+	$(CMD_DEV) up backend
 
 backend-d: init-env build-backend
 	@echo "$(GREEN)Starting backend and dependency services in detached mode…$(RESET)"
-	$(CMD_DEV) up -d postgres
-	$(CMD_DEV) run --rm backend-migrate
-	$(CMD_DEV) up -d --no-deps backend
+	$(CMD_DEV) up -d backend
 
 build-backend: init-env
-	@echo "$(CYAN)Building backend and dependency images…$(RESET)"
-	$(CMD_DEV) build postgres backend-migrate backend
+	@echo "$(CYAN)Building backend images…$(RESET)"
+	$(CMD_DEV) build backend backend-migrate
 
-postgres: init-env build-postgres
-	@echo "$(GREEN)Starting postgres and dependency services…$(RESET)"
+postgres: init-env
+	@echo "$(GREEN)Starting postgres…$(RESET)"
 	$(CMD_DEV) up postgres
 
-postgres-d: init-env build-postgres
-	@echo "$(GREEN)Starting postgres and dependency services in detached mode…$(RESET)"
+postgres-d: init-env
+	@echo "$(GREEN)Starting postgres in detached mode…$(RESET)"
 	$(CMD_DEV) up -d postgres
-
-build-postgres: init-env
-	@echo "$(CYAN)Building postgres and dependency images…$(RESET)"
-	$(CMD_DEV) build postgres backend-migrate
 
 # prod
 prod: init-env build-prod
 	@echo "$(MAGENTA)Starting production environment…$(RESET)"
-	$(CMD_PROD) up -d postgres
-	$(CMD_PROD) run --rm backend-migrate
-	$(CMD_PROD) up --no-deps backend frontend
+	$(CMD_PROD) up backend frontend
 
 prod-d: init-env build-prod
 	@echo "$(MAGENTA)Starting production environment in detached mode…$(RESET)"
-	$(CMD_PROD) up -d postgres
-	$(CMD_PROD) run --rm backend-migrate
-	$(CMD_PROD) up -d --no-deps backend frontend
+	$(CMD_PROD) up -d backend frontend
 
 build-prod: init-env
 	@echo "$(CYAN)Building production images (target: prod)…$(RESET)"
@@ -125,23 +109,23 @@ logs-prod:
 # cleanup
 down:
 	@echo "$(YELLOW)Stopping all project containers…$(RESET)"
-	$(CMD_DEV) down 2>/dev/null || true
-	$(CMD_PROD) down 2>/dev/null || true
+	$(CMD_DEV) down
+	$(CMD_PROD) down
 
 clean:
 	@echo "$(YELLOW)Stopping containers and removing volumes…$(RESET)"
-	$(CMD_DEV) down -v 2>/dev/null || true
-	$(CMD_PROD) down -v 2>/dev/null || true
+	$(CMD_DEV) down -v
+	$(CMD_PROD) down -v
 
 fclean: clean
 	@echo "$(YELLOW)Removing all project images…$(RESET)"
-	$(CMD_DEV) down -v --rmi local 2>/dev/null || true
-	$(CMD_PROD) down -v --rmi local 2>/dev/null || true
+	$(CMD_DEV) down -v --rmi local
+	$(CMD_PROD) down -v --rmi local
 
 docker-clean:
 	@echo "$(YELLOW)Removing all Compose containers, images, networks, and volumes (sudo)…$(RESET)"
-	sudo $(CMD_DEV) down --volumes --rmi all --remove-orphans 2>/dev/null || true
-	sudo $(CMD_PROD) down --volumes --rmi all --remove-orphans 2>/dev/null || true
+	sudo $(CMD_DEV) down --volumes --rmi all --remove-orphans
+	sudo $(CMD_PROD) down --volumes --rmi all --remove-orphans
 
 # tests
 test: init-env
@@ -149,8 +133,9 @@ test: init-env
 	cd backend && npm test
 
 test-e2e: init-env
-	@echo "Running backend e2e tests..."
-	cd backend && DATABASE_URL=postgresql://user:devpassword@localhost:5432/transcendence_dev npm run test:e2e
+	@echo "$(CYAN)Running backend e2e tests…$(RESET)"
+	set -a && . ./$(ENV_FILE) && set +a && \
+	cd backend && DATABASE_URL="postgresql://$$POSTGRES_USER:$$POSTGRES_PASSWORD@localhost:$${POSTGRES_PORT:-5432}/$$POSTGRES_DB" npm run test:e2e
 
 lint:
 	@echo "$(CYAN)Linting backend…$(RESET)"
@@ -171,14 +156,14 @@ help:
 	@echo "  $(BOLD)$(GREEN)[Development Environment]$(RESET)"
 	@echo "    $(BOLD)make dev$(RESET)          Start dev containers with live reload and HTTPS (attached logs)"
 	@echo "    $(BOLD)make dev-d$(RESET)        Start dev containers in detached mode with HTTPS"
-	@echo "    $(BOLD)make build-dev$(RESET)    Build development images (target: dev)"
-	@echo "    $(BOLD)make down-dev$(RESET)     Stop dev containers"
-	@echo "    $(BOLD)make restart-dev$(RESET)  Restart dev containers"
 	@echo "    $(BOLD)make logs-dev$(RESET)     Follow dev container logs"
 	@echo "    $(BOLD)make backend$(RESET)       Build and run backend with dependencies"
 	@echo "    $(BOLD)make backend-d$(RESET)     Run backend with dependencies in background"
 	@echo "    $(BOLD)make build-backend$(RESET) Build backend and dependency images"
 	@echo ""
+	@echo "    $(BOLD)make build-dev$(RESET)    Build development images (target: dev)"
+	@echo "    $(BOLD)make down-dev$(RESET)     Stop dev containers"
+	@echo "    $(BOLD)make restart-dev$(RESET)  Restart dev containers"
 	@echo "  $(BOLD)$(MAGENTA)[Production Environment]$(RESET)"
 	@echo "    $(BOLD)make prod$(RESET)         Start production containers (attached logs)"
 	@echo "    $(BOLD)make prod-d$(RESET)       Start production containers in detached mode"

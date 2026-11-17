@@ -3,13 +3,13 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { PrismaService } from './prisma/prisma.service.js';
+import { createAuth } from './auth.js';
 import { UsersModule } from './users/users.module.js';
 import { EventsModule } from './events/events.module.js';
 import { LoggerModule } from 'nestjs-pino';
 import { loggerConfig } from './logger.config.js';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
-import { auth } from './auth.js';
-import { ProblemModule } from './problem/problem.module.js';
 
 @Module({
   imports: [
@@ -18,8 +18,11 @@ import { ProblemModule } from './problem/problem.module.js';
     UsersModule,
     EventsModule,
     LoggerModule.forRoot(loggerConfig),
-    AuthModule.forRoot({ auth }),
-    ProblemModule,
+    AuthModule.forRootAsync({
+      imports: [PrismaModule],
+      inject: [PrismaService],
+      useFactory: (prisma: PrismaService) => ({ auth: createAuth(prisma) }),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

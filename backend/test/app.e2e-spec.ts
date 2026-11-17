@@ -1,15 +1,22 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module.js';
+import { PrismaService } from './../src/prisma/prisma.service.js';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    const prisma = {
+      user: { count: vi.fn().mockResolvedValue(0) },
+    };
+    const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prisma)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.getHttpAdapter().getInstance().set('trust proxy', 1);
@@ -40,7 +47,7 @@ describe('AppController (e2e)', () => {
       .expect({ ip: '203.0.113.10', protocol: 'https', secure: true });
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
   });
 });
