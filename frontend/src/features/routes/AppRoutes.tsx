@@ -10,6 +10,7 @@ import PasswordResetSuccessPage from "@/features/auth/pages/PasswordResetSuccess
 import LandingPage from "@/pages/LandingPage";
 import Dashboard from "@/pages/Dashboard";
 import ProfilePage from "@/pages/ProfilePage";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 import { ProtectedRoute } from "./guards/ProtectedRoute";
 import { GuestRoute } from "./guards/GuestRoute";
@@ -71,6 +72,8 @@ export function AppRoutes() {
           element={<PasswordResetSuccessPage />}
         />
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

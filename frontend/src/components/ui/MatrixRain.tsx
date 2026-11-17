@@ -177,9 +177,9 @@ export function MatrixRain({
     };
     readColors();
 
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ? 0.35
-      : 1;
+    const motionPreference = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
     const chars = CONFIG.chars;
     const rnd = (a: number, b: number) => a + Math.random() * (b - a);
     const rndChar = () => chars[(Math.random() * chars.length) | 0];
@@ -234,14 +234,20 @@ export function MatrixRain({
       ctx!.fillStyle = `rgb(${bg})`;
       ctx!.fillRect(0, 0, W, H);
       initStreams();
+      requestFrame();
     }
 
     let last = performance.now();
     let lastColorCheck = 0;
     let raf = 0;
 
+    function requestFrame() {
+      if (!raf && !document.hidden) raf = requestAnimationFrame(frame);
+    }
+
     function frame(now: number) {
-      raf = requestAnimationFrame(frame);
+      raf = 0;
+      if (document.hidden) return;
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
 
@@ -263,7 +269,8 @@ export function MatrixRain({
         ctx!.font = `${fs}px ${CONFIG.font}`;
 
         for (const s of layer.streams) {
-          s.y += s.speed * CONFIG.speed * motion * dt;
+          const motionScale = motionPreference.matches ? 0.35 : 1;
+          s.y += s.speed * CONFIG.speed * motionScale * dt;
           const headRow = Math.floor(s.y);
 
           if (headRow !== s.lastRow) {
@@ -300,16 +307,21 @@ export function MatrixRain({
           }
         }
       }
+      requestFrame();
     }
 
     const onVisibility = () => {
       last = performance.now();
+      cancelAnimationFrame(raf);
+      raf = 0;
+      requestFrame();
     };
 
     const observer = new MutationObserver(() => {
       if (readColors()) {
         ctx.fillStyle = `rgb(${bg})`;
         ctx.fillRect(0, 0, W, H);
+        requestFrame();
       }
     });
     observer.observe(document.documentElement, {
@@ -320,14 +332,15 @@ export function MatrixRain({
 
     window.addEventListener("resize", resize);
     document.addEventListener("visibilitychange", onVisibility);
+    motionPreference.addEventListener("change", onVisibility);
     resize();
-    raf = requestAnimationFrame(frame);
 
     return () => {
       cancelAnimationFrame(raf);
       observer.disconnect();
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
+      motionPreference.removeEventListener("change", onVisibility);
     };
   }, [configKey]);
 

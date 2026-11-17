@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 import { Avatar } from "@/components/ui/Avatar";
 import { Dropdown } from "@/components/ui/DropDown";
-import { Link, NavLink as RouterNavLink, useNavigate } from "react-router-dom";
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import {
   Settings,
   Bell,
@@ -13,8 +13,14 @@ import {
   User as UserIcon,
   X,
 } from "lucide-react";
+import { authClient } from "@/features/auth/lib/authClient";
 
-export type NavLink = { label: string; href: string };
+export type NavLink = {
+  label: string;
+  href: string;
+  /** Other routes that represent the same navigation section. */
+  activePaths?: string[];
+};
 
 type NavUser = {
   name: string;
@@ -25,18 +31,10 @@ type NavUser = {
 const guestLinks: NavLink[] = [];
 
 const userLinks: NavLink[] = [
-  { label: "Home", href: "/" },
+  { label: "Home", href: "/", activePaths: ["/dashboard"] },
   { label: "Challenges", href: "/challenges" },
   { label: "Leaderboard", href: "/leaderboard" },
 ];
-
-// TODO: replace with the real user from your auth context / state
-const currentUser: NavUser = {
-  name: "Jordan Davis",
-  email: "jordan@codearena.dev",
-  avatarUrl:
-    "https://lh3.googleusercontent.com/-eQYjr3Q9lko/AAAAAAAAAAI/AAAAAAAAAAA/AOk1-FGdFWrI5gxss5sLalvnaMTbpgRpgg/photo.jpg?sz=46", // e.g. "https://.../me.jpg"
-};
 
 type LinkItemProps = {
   links: NavLink[];
@@ -61,6 +59,7 @@ export function LinkItem({
   variant = "desktop",
   onNavigate,
 }: LinkItemProps) {
+  const { pathname } = useLocation();
   if (links.length === 0) return null;
   const isDesktop = variant === "desktop";
 
@@ -70,21 +69,30 @@ export function LinkItem({
         isDesktop ? "hidden items-center gap-8 md:flex" : "flex flex-col py-2"
       }
     >
-      {links.map(({ label, href }) => (
-        <li
-          key={href}
-          className={isDesktop ? "" : "border-b border-border last:border-b-0"}
-        >
-          <RouterNavLink
-            to={href}
-            end={href === "/"}
-            className={isDesktop ? desktopLinkClass : mobileLinkClass}
-            onClick={onNavigate}
+      {links.map(({ label, href, activePaths = [] }) => {
+        const isActive = [href, ...activePaths].some((path) =>
+          matchPath({ path, end: href === "/" }, pathname),
+        );
+        return (
+          <li
+            key={href}
+            className={
+              isDesktop ? "" : "border-b border-border last:border-b-0"
+            }
           >
-            {label}
-          </RouterNavLink>
-        </li>
-      ))}
+            <Link
+              to={href}
+              aria-current={isActive ? "page" : undefined}
+              className={(isDesktop ? desktopLinkClass : mobileLinkClass)({
+                isActive,
+              })}
+              onClick={onNavigate}
+            >
+              {label}
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -168,10 +176,42 @@ function NotificationButton({ hasUnread = true }: { hasUnread?: boolean }) {
   );
 }
 
-function UserNavBar({ user = currentUser }: { user?: NavUser }) {
+function UserNavBar({ user: suppliedUser }: { user?: NavUser }) {
   const navigate = useNavigate();
+  const { data: session } = authClient.useSession();
   const [open, setOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+
+  const user: NavUser = suppliedUser ?? {
+    name: session?.user.name || "Player",
+    email: session?.user.email ?? "",
+    avatarUrl: session?.user.image,
+  };
+
   const close = () => setOpen(false);
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    setLogoutError(null);
+
+    try {
+      const { error } = await authClient.signOut();
+
+      if (error) {
+        setLogoutError("Unable to log out. Please try again.");
+        return;
+      }
+
+      navigate("/", { replace: true });
+    } catch {
+      setLogoutError("Unable to log out. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
 
   const menuItems = [
     {
@@ -180,17 +220,20 @@ function UserNavBar({ user = currentUser }: { user?: NavUser }) {
       chevron: true,
       onClick: () => navigate("/profile"),
     },
-        {
+    {
       label: "Settings",
       icon: <Settings className="size-4" />,
       chevron: true,
       onClick: () => navigate("/settings"),
     },
     {
-      label: "Log out",
+      label: isLoggingOut ? "Logging out…" : "Log out",
       icon: <LogOut className="size-4" />,
       destructive: true,
-      onClick: () => console.log("Logging out..."), // call your logout here
+      disabled: isLoggingOut,
+      onClick: () => {
+        void handleLogout();
+      },
     },
   ];
 
@@ -263,6 +306,15 @@ function UserNavBar({ user = currentUser }: { user?: NavUser }) {
           </button>
         </div>
       </nav>
+
+      {logoutError && (
+        <p
+          role="alert"
+          className="mx-auto max-w-page px-gutter py-2 text-sm text-destructive"
+        >
+          {logoutError}
+        </p>
+      )}
 
       {open && (
         <div
