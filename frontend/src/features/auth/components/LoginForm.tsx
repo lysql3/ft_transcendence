@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -11,25 +12,39 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema, type LoginFormData } from "@/features/auth/schemas/auth";
 import { Link } from "react-router-dom";
+import { useEmailAuthSubmit } from "../hooks/useEmailAuthSubmit";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
 const linkClass =
   "text-accent underline underline-offset-4 transition-colors duration-(--duration) hover:text-accent/80";
 
+const serverErrorFields: Record<string, "email" | "password"> = {
+  INVALID_EMAIL: "email",
+  INVALID_PASSWORD: "password",
+};
+
 export function LoginForm({ className }: { className?: string }) {
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting, isValid },
   } = useForm<LoginFormData>({
     mode: "onTouched",
     resolver: zodResolver(LoginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    // TODO: call your login API here.
-    console.log("Login submitted for:", data.email);
 
-  };
+  const onSubmit = useEmailAuthSubmit<LoginFormData>({
+    endpoint: "/api/auth/sign-in/email",
+    failureMessage: "Unable to log in",
+    getPayload: (data) => ({ email: data.email, password: data.password }),
+    errorFields: serverErrorFields,
+    clearErrors,
+    setError,
+  });
 
   return (
     <Card
@@ -71,11 +86,23 @@ export function LoginForm({ className }: { className?: string }) {
             variant="solid"
             size="lg"
             loading={isSubmitting}
-            disabled={!isValid}
+            disabled={!isValid || isGoogleSubmitting}
             className="mt-2 w-full"
           >
             Log in
           </Button>
+          <GoogleSignInButton
+            label="Log in with Google"
+            disabled={isSubmitting}
+            onStart={() => clearErrors("root")}
+            onError={(message) => setError("root", { type: "server", message })}
+            onLoadingChange={setIsGoogleSubmitting}
+          />
+          {errors.root?.message && (
+            <p role="alert" className="text-center text-xs text-destructive">
+              {errors.root.message}
+            </p>
+          )}
         </form>
       </CardContent>
       <CardFooter className="flex flex-col justify-center">

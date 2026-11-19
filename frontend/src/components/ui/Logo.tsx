@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { cn } from "@/lib/cn";
 
 type LogoSize = "sm" | "md" | "lg";
 
@@ -23,7 +24,11 @@ export function Logo({
     <span
       role="img"
       aria-label={name}
-      className={`inline-flex select-none items-center whitespace-nowrap font-semibold tracking-ui ${sizes[size]} ${className}`}
+      className={cn(
+        "inline-flex select-none items-center whitespace-nowrap font-semibold tracking-ui",
+        sizes[size],
+        className,
+      )}
       {...rest}
     >
       <span aria-hidden="true" className="text-logo">

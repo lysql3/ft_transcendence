@@ -50,4 +50,7 @@ scratch/
 
 .questions
 prism.remove
-data/
+
+#ai agent\
+AGENTS.md
+PROJECT_CONTEXT.md
