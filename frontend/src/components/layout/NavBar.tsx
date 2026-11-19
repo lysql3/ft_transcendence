@@ -185,7 +185,7 @@ function UserNavBar({ user: suppliedUser }: { user?: NavUser }) {
 
   const user: NavUser = suppliedUser ?? {
     name: session?.user.name || "Player",
-    email: session?.user.email ?? "",
+    email: session?.user.email || "example@example.com",
     avatarUrl: session?.user.image,
   };
 
