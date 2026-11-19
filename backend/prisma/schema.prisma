@@ -54,11 +54,11 @@ model Problem {
 }
 
 model TestCase {
-  id         Int     @id @default(autoincrement())
-  problemId  Int
-  inputPath  String // NOTE : rename it to hold filePath
-  outputPath String // NOTE : rename it to hold filePath
-  isHidden   Boolean @default(true)
+  id             Int     @id @default(autoincrement())
+  problemId      Int
+  inputPath      String // NOTE : rename it to hold filePath
+  outputPath     String // NOTE : rename it to hold filePath
+  isHidden       Boolean @default(true)
 
   problem Problem @relation(fields: [problemId], references: [id])
 }

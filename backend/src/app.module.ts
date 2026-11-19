@@ -10,6 +10,7 @@ import { EventsModule } from './events/events.module.js';
 import { LoggerModule } from 'nestjs-pino';
 import { loggerConfig } from './logger.config.js';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
+import { ProblemModule } from './problem/problem.module.js';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AuthModule } from '@thallesp/nestjs-better-auth';
       inject: [PrismaService],
       useFactory: (prisma: PrismaService) => ({ auth: createAuth(prisma) }),
     }),
+    ProblemModule,
   ],
   controllers: [AppController],
   providers: [AppService],
