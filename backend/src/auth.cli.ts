@@ -9,3 +9,4 @@ const adapter = new PrismaPg({
 
 export const auth = createAuth(new PrismaClient({ adapter })); // throwaway; CLI never queries
 // npx @better-auth/cli generate --config src/auth.cli.ts
+// npx @better-auth/cli generate --config src/auth.cli.ts --output /tmp/ba.prisma

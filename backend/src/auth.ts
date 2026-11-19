@@ -17,7 +17,15 @@ export const createAuth = (prisma: PrismaClient) =>
     database: prismaAdapter(prisma, {
       provider: 'postgresql',
     }),
-
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (user) => {
+            await prisma.userProfile.create({ data: { userId: user.id } });
+          },
+        },
+      },
+    },
     secret: betterAuthSecret,
     baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
     trustedOrigins: [process.env.FRONTEND_URL ?? 'http://localhost:5173'],
