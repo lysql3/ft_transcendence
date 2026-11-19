@@ -1,14 +1,13 @@
 services:
   postgres:
-    build:
-      target: dev
+    restart: "no"
+    command: ["postgres", "-c", "log_statement=all"]
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
-    env_file:
-      - .env
 
   adminer:
     image: adminer:4.8.1
+    restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
@@ -22,6 +21,7 @@ services:
   backend:
     build:
       target: dev
+    restart: "no"
     ports:
       - "${PORT:-3000}:3000"
     env_file:
@@ -45,10 +45,9 @@ services:
   frontend:
     build:
       target: dev
+    restart: "no"
     ports:
       - "${FRONTEND_DEV_PORT:-5173}:5173"
-    env_file:
-      - .env
     environment:
       - NODE_ENV=development
       - BACKEND_URL=http://backend:3000
@@ -56,14 +55,15 @@ services:
       - ./frontend:/app
       - /app/node_modules
 
+  # TEMPORARY: still builds the prod image (stale static build).
+  # Replaced by the real nginx service in plan feature 1.8.
   frontend-nginx:
     build:
       context: ./frontend
+    restart: "no"
     depends_on:
       - frontend
+    networks:
+      - ft_tra_networks
     ports:
       - "${FRONTEND_HTTPS_PORT:-5443}:443"
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=development
