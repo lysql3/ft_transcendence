@@ -44,11 +44,11 @@ init-env:
 # dev
 dev: init-env build-dev
 	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
-	$(CMD_DEV) up postgres adminer backend frontend frontend-nginx
+	$(CMD_DEV) up -V postgres adminer backend frontend frontend-nginx
 
 dev-d: init-env build-dev
 	@echo "$(GREEN)Starting development environment in detached mode…$(RESET)"
-	$(CMD_DEV) up -d postgres adminer backend frontend frontend-nginx
+	$(CMD_DEV) up -d -V postgres adminer backend frontend frontend-nginx
 
 build-dev: init-env
 	@echo "$(CYAN)Building dev images (target: dev)…$(RESET)"
