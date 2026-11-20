@@ -1,4 +1,5 @@
 COMPOSE			= docker compose
+LOAD_ENV 		= set -a && . ./$(ENV_FILE) && set +a
 ENV_FILE		= .env
 
 COMPOSE_BASE	= docker-compose.base.yml
@@ -18,7 +19,8 @@ MAGENTA	= \033[35m
 .PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
 	backend backend-d build-backend \
         prod prod-d build-prod down-prod restart-prod logs-prod \
-	down clean fclean docker-clean init-env test test-e2e lint build-local
+	down clean fclean docker-clean init-env test test-e2e lint build-local \
+	db-up migrate-dev migrate-deploy host-backend psql
 
 init-env:
 	@if [ ! -f .env ]; then \
@@ -40,6 +42,22 @@ init-env:
 	@if ! grep -q '^FRONTEND_URL=' .env; then \
 		printf 'FRONTEND_URL=http://localhost:5173\n' >> .env; \
 	fi
+
+# database
+db-up: init-env
+	$(CMD_DEV) up -d --wait postgres
+
+migrate-dev: db-up
+	$(LOAD_ENV) && cd backend && npx prisma migrate dev
+
+migrate-deploy: db-up
+	$(LOAD_ENV) && cd backend && npm run prisma:migrate:deploy
+
+host-backend: db-up
+	$(LOAD_ENV) && cd backend && npm run prisma:generate && npm run start:dev
+
+psql:
+	$(CMD_DEV) exec postgres sh -c 'psql -U "$$POSTGRES_USER" "$$POSTGRES_DB"'
 
 # dev
 dev: init-env build-dev
@@ -132,7 +150,7 @@ test: init-env
 	@echo "$(CYAN)Running backend unit tests…$(RESET)"
 	cd backend && npm test
 
-test-e2e: init-env
+test-e2e: init-env db-up
 	@echo "$(CYAN)Running backend e2e tests…$(RESET)"
 	set -a && . ./$(ENV_FILE) && set +a && \
 	cd backend && DATABASE_URL="postgresql://$$POSTGRES_USER:$$POSTGRES_PASSWORD@localhost:$${POSTGRES_PORT:-5432}/$$POSTGRES_DB" npm run test:e2e

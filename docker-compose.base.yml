@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
+    init: true
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
@@ -54,6 +55,7 @@ services:
   frontend:
     build:
       context: ./frontend
+    init: true
     restart: unless-stopped
     depends_on:
       backend:
