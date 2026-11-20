@@ -17,6 +17,7 @@ services:
       - ft_tra_networks
 
   backend:
+    command: sh -c "npm run prisma:generate && npx prisma migrate deploy && npx prisma db seed && npm run start:dev"
     build:
       context: ./backend
     restart: unless-stopped
