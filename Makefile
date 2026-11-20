@@ -8,6 +8,8 @@ COMPOSE_PROD	= docker-compose.prod.yml
 CMD_DEV			= $(COMPOSE) -p "dev" --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
 CMD_PROD		= $(COMPOSE) -p "prod" --env-file $(ENV_FILE) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
 
+JUDGE_DIR = judge0
+
 RESET	= \033[0m
 BOLD	= \033[1m
 GREEN	= \033[32m
@@ -63,7 +65,7 @@ restart-dev: down-dev dev
 logs-dev:
 	$(CMD_DEV) logs -f
 
-# postres and backend and dependencies
+# postgres and backend and dependencies
 backend: init-env build-backend
 	@echo "$(GREEN)Starting backend and dependency services…$(RESET)"
 	$(CMD_DEV) up backend
@@ -83,6 +85,20 @@ postgres: init-env
 postgres-d: init-env
 	@echo "$(GREEN)Starting postgres in detached mode…$(RESET)"
 	$(CMD_DEV) up -d postgres
+
+judge-up: judge-net
+	@echo "$(CYAN)Starting Judge0…$(RESET)"
+	cd $(JUDGE_DIR) && docker compose up -d db redis
+	sleep 10
+	cd $(JUDGE_DIR) && docker compose up -d
+
+judge-net:
+	@docker network inspect judge_net >/dev/null 2>&1 || docker network create judge_net
+
+judge-down:
+	cd $(JUDGE_DIR) && docker compose down
+
+backend-full: judge-up backend-d
 
 # prod
 prod: init-env build-prod
