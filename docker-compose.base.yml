@@ -38,6 +38,7 @@ services:
       start_period: 30s
     networks:
       - ft_tra_networks
+      - judge_net
     volumes:
       - ./data/problems:/app/data/problems
 
@@ -65,6 +66,8 @@ services:
 networks:
   ft_tra_networks:
     driver: bridge
+  judge_net:
+    external: true
 
 volumes:
   pgdata:

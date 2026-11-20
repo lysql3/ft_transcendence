@@ -12,6 +12,7 @@ import { loggerConfig } from './logger.config.js';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { ProblemModule } from './problem/problem.module.js';
 import { LanguageModule } from './language/language.module.js';
+import { JudgeModule } from './judge/judge.module.js';
 
 @Module({
 	imports: [
@@ -27,6 +28,7 @@ import { LanguageModule } from './language/language.module.js';
 		}),
 			ProblemModule,
 			LanguageModule,
+			JudgeModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

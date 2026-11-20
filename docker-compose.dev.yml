@@ -33,6 +33,9 @@ services:
       - ./backend:/app
       - /app/node_modules
     command: sh -c "npm run prisma:generate && npx tsx prisma/seed.ts && npm run start:dev"
+    networks:
+      - ft_tra_networks
+      - judge_net
 
   backend-migrate:
     env_file:
@@ -67,3 +70,7 @@ services:
       - ft_tra_networks
     ports:
       - "${FRONTEND_HTTPS_PORT:-5443}:443"
+
+networks:
+  judge_net:
+    external: true
