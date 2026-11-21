@@ -30,6 +30,9 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    networks:
+      - ft_tra_networks
+      - judge_net
     command: sh -c "npm run prisma:generate && exec npm run start:dev"
 
   backend-migrate:
@@ -65,3 +68,7 @@ services:
       - ft_tra_networks
     ports:
       - "${FRONTEND_HTTPS_PORT:-5443}:443"
+
+networks:
+  judge_net:
+    external: true

@@ -50,6 +50,10 @@ scratch/
 
 .questions
 prism.remove
+data/
+
+# Judge0
+judge0/judge0.conf
 
 #ai agent\
 AGENTS.md

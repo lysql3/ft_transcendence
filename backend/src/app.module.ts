@@ -11,22 +11,26 @@ import { LoggerModule } from 'nestjs-pino';
 import { loggerConfig } from './logger.config.js';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { ProblemModule } from './problem/problem.module.js';
+import { LanguageModule } from './language/language.module.js';
+import { JudgeModule } from './judge/judge.module.js';
 
 @Module({
-  imports: [
-    HealthModule,
-    PrismaModule,
-    UsersModule,
-    EventsModule,
-    LoggerModule.forRoot(loggerConfig),
-    AuthModule.forRootAsync({
-      imports: [PrismaModule],
-      inject: [PrismaService],
-      useFactory: (prisma: PrismaService) => ({ auth: createAuth(prisma) }),
-    }),
-    ProblemModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+	imports: [
+		HealthModule,
+		PrismaModule,
+		UsersModule,
+		EventsModule,
+		LoggerModule.forRoot(loggerConfig),
+		AuthModule.forRootAsync({
+			imports: [PrismaModule],
+			inject: [PrismaService],
+			useFactory: (prisma: PrismaService) => ({ auth: createAuth(prisma) }),
+		}),
+			ProblemModule,
+			LanguageModule,
+			JudgeModule,
+	],
+	controllers: [AppController],
+	providers: [AppService],
 })
 export class AppModule {}
