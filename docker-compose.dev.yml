@@ -68,7 +68,3 @@ services:
       - ft_tra_networks
     ports:
       - "${FRONTEND_HTTPS_PORT:-5443}:443"
-
-networks:
-  judge_net:
-    external: true

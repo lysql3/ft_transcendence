@@ -10,7 +10,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -28,7 +32,7 @@ services:
       backend-migrate:
         condition: service_completed_successfully
     environment:
-          BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
     healthcheck:
       test:
         [
@@ -71,7 +75,7 @@ networks:
   ft_tra_networks:
     driver: bridge
   judge_net:
-    external: true
+  #   external: true
 
 volumes:
   pgdata:
