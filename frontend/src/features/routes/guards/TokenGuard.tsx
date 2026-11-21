@@ -1,0 +1,11 @@
+import { Navigate, Outlet, useSearchParams } from "react-router-dom";
+
+export function TokenGuard() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <Outlet />;
+}

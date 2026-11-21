@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String   @id
+  name            String
+  email           String   @unique @db.VarChar(255)
+  emailVerified   Boolean  @default(false)
+  image           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  username        String?  @unique @db.VarChar(50)
+  displayUsername String? // REMOVE??
+
+  profile        UserProfile?
+  player1Matches Match[]      @relation("Player1Matches")
+  player2Matches Match[]      @relation("Player2Matches")
+  wonMatches     Match[]      @relation("WinnerMatches")
+  submissions    Submission[]
+
+  sessions Session[]
+  accounts Account[]
+
+  @@map("user")
+}
+
+model UserProfile {
+  userId String  @id
+  bio    String? @db.VarChar(280)
+  elo    Int     @default(1000)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profile")
+}
+
+model Problem {
+  id              Int      @id @default(autoincrement())
+  title           String   @db.VarChar(255)
+  slug            String   @unique // NOTE : to use as a name in backend
+  descriptionPath String // NOTE : rename it to hold filePath
+  tags            String[] // NOTE : tags to filter problems
+  difficulty      String   @db.VarChar(20)
+  createdAt       DateTime @default(now())
+
+  testCases   TestCase[]
+  submissions Submission[]
+  matches     Match[]
+}
+
+model TestCase {
+  id             Int     @id @default(autoincrement())
+  problemId      Int
+  inputPath      String // NOTE : rename it to hold filePath
+  outputPath     String // NOTE : rename it to hold filePath
+  isHidden       Boolean @default(true)
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade) // NOTE : add onDelete Cascade to auto delete
+}
+
+model Language {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(50)
+
+  submissions Submission[]
+}
+
+model Match {
+  id        Int      @id @default(autoincrement())
+  problemId Int
+  player1Id String
+  player2Id String
+  winnerId  String?
+  status    String   @db.VarChar(30)
+  score1    Int      @default(0)
+  score2    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  problem     Problem      @relation(fields: [problemId], references: [id])
+  player1     User         @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2     User         @relation("Player2Matches", fields: [player2Id], references: [id])
+  winner      User?        @relation("WinnerMatches", fields: [winnerId], references: [id])
+  submissions Submission[]
+}
+
+model Submission {
+  id          Int      @id @default(autoincrement())
+  matchId     Int?
+  userId      String
+  problemId   Int
+  languageId  Int
+  codeContent String
+  status      String   @db.VarChar(30)
+  createdAt   DateTime @default(now())
+
+  match    Match?   @relation(fields: [matchId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  problem  Problem  @relation(fields: [problemId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}

@@ -1,18 +1,25 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module.js';
+import { PrismaService } from './../src/prisma/prisma.service.js';
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    const prisma = {
+      user: { count: vi.fn().mockResolvedValue(0) },
+    };
+    const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prisma)
+      .compile();
 
     app = moduleFixture.createNestApplication();
+    app.getHttpAdapter().getInstance().set('trust proxy', 1);
     app.setGlobalPrefix('api');
     await app.init();
   });
@@ -28,10 +35,19 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/api/health')
       .expect(200)
-      .expect({ status: 'ok' });
+      .expect({ db: 'ok' });
   });
 
-  afterEach(async () => {
+  it('/api/whoami (GET) uses forwarded request details', () => {
+    return request(app.getHttpServer())
+      .get('/api/whoami')
+      .set('X-Forwarded-For', '203.0.113.10')
+      .set('X-Forwarded-Proto', 'https')
+      .expect(200)
+      .expect({ ip: '203.0.113.10', protocol: 'https', secure: true });
+  });
+
+  afterAll(async () => {
     await app.close();
   });
 });

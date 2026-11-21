@@ -1,14 +1,13 @@
 services:
   postgres:
-    build:
-      target: dev
+    restart: "no"
+    command: ["postgres", "-c", "log_statement=all"]
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
-    env_file:
-      - .env.dev
 
   adminer:
     image: adminer:4.8.1
+    restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
@@ -22,27 +21,50 @@ services:
   backend:
     build:
       target: dev
+    restart: "no"
     ports:
       - "${PORT:-3000}:3000"
-    env_file:
-      - .env.dev
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     volumes:
       - ./backend:/app
       - /app/node_modules
+    networks:
+      - ft_tra_networks
+      - judge_net
+    command: sh -c "npm run prisma:generate && exec npm run start:dev"
+
+  backend-migrate:
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: npm run prisma:migrate:deploy
 
   frontend:
     build:
       target: dev
+    restart: "no"
     ports:
-      - "${FRONTEND_PORT:-5173}:5173"
-    env_file:
-      - .env.dev
+      - "${FRONTEND_DEV_PORT:-5173}:5173"
     environment:
       - NODE_ENV=development
       - BACKEND_URL=http://backend:3000
+      - PORT=5173
     volumes:
       - ./frontend:/app
       - /app/node_modules
+
+  # TEMPORARY: still builds the prod image (stale static build).
+  # Replaced by the real nginx service in plan feature 1.8.
+  frontend-nginx:
+    build:
+      context: ./frontend
+    restart: "no"
+    depends_on:
+      - frontend
+    networks:
+      - ft_tra_networks
+    ports:
+      - "${FRONTEND_HTTPS_PORT:-5443}:443"

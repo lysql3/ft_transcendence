@@ -1,12 +1,20 @@
 services:
   postgres:
-    build:
-      context: ./database
+    image: postgres:16-alpine
+    init: true
     restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -14,9 +22,40 @@ services:
       - ft_tra_networks
 
   backend:
+    command: sh -c "npm run prisma:generate && npx prisma migrate deploy && npx prisma db seed && npm run start:dev"
     build:
       context: ./backend
     restart: unless-stopped
+    env_file:
+        - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend-migrate:
+        condition: service_completed_successfully
+    environment:
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://127.0.0.1:$${PORT:-3000}/api/health >/dev/null || exit 1",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    networks:
+      - ft_tra_networks
+      - judge_net
+    volumes:
+      - ./data/problems:/app/data/problems
+
+  backend-migrate:
+    build:
+      context: ./backend
+      target: build
+    restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
@@ -26,16 +65,19 @@ services:
   frontend:
     build:
       context: ./frontend
+    init: true
     restart: unless-stopped
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
     networks:
       - ft_tra_networks
 
 networks:
   ft_tra_networks:
     driver: bridge
+  judge_net:
+    external: true
 
 volumes:
   pgdata:

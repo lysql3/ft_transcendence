@@ -1,22 +1,14 @@
-import { Controller, Delete, Get, Post } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { HealthService } from './health.service.js';
 
 @Controller('health')
+@AllowAnonymous()
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
   @Get()
   check() {
-    return { status: 'ok' };
-  }
-
-  @Post('db')
-  checkDatabase() {
-    return this.healthService.checkDatabase();
-  }
-
-  @Delete('db')
-  resetDatabase() {
-    return this.healthService.resetDatabase();
+    return this.healthService.check();
   }
 }
