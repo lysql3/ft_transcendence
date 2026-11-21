@@ -24,8 +24,6 @@ services:
     restart: "no"
     ports:
       - "${PORT:-3000}:3000"
-    env_file:
-      - .env
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -35,8 +33,6 @@ services:
     command: sh -c "npm run prisma:generate && exec npm run start:dev"
 
   backend-migrate:
-    env_file:
-      - .env
     environment:
       - PORT=3000
       - NODE_ENV=development

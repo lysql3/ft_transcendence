@@ -2,6 +2,7 @@ COMPOSE			= docker compose
 LOAD_ENV 		= set -a && . ./$(ENV_FILE) && set +a
 ENV_FILE		= .env
 
+
 COMPOSE_BASE	= docker-compose.base.yml
 COMPOSE_DEV		= docker-compose.dev.yml
 COMPOSE_PROD	= docker-compose.prod.yml
@@ -53,12 +54,23 @@ migrate-dev: db-up
 migrate-deploy: db-up
 	$(LOAD_ENV) && cd backend && npm run prisma:migrate:deploy
 
+migrate-status: db-up
+	$(LOAD_ENV) && cd backend && npx prisma migrate status
+
+migrate-reset: db-up
+	$(LOAD_ENV) && cd backend && npx prisma migrate reset
+
+generate:
+	$(LOAD_ENV) && cd backend && npm run prisma:generate
+
+restart-backend:
+	$(CMD_DEV) restart backend
+
 host-backend: db-up
 	$(LOAD_ENV) && cd backend && npm run prisma:generate && npm run start:dev
 
 psql:
 	$(CMD_DEV) exec postgres sh -c 'psql -U "$$POSTGRES_USER" "$$POSTGRES_DB"'
-
 # dev
 dev: init-env build-dev
 	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
@@ -79,7 +91,7 @@ down-dev:
 restart-dev: down-dev dev
 
 logs-dev:
-	$(CMD_DEV) logs -f
+	$(CMD_DEV) logs -f $(filter-out $@,$(MAKECMDGOALS))
 
 # postres and backend and dependencies
 backend: init-env build-backend
@@ -122,7 +134,8 @@ down-prod:
 restart-prod: down-prod prod
 
 logs-prod:
-	$(CMD_PROD) logs -f
+	$(CMD_PROD) logs -f $(filter-out $@,$(MAKECMDGOALS))
+
 
 # cleanup
 down:

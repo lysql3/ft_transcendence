@@ -26,6 +26,8 @@ services:
         condition: service_healthy
       backend-migrate:
         condition: service_completed_successfully
+    environment:
+          BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
     healthcheck:
       test:
         [
