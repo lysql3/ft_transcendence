@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
+    init: true
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
@@ -9,7 +10,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -26,6 +27,8 @@ services:
         condition: service_healthy
       backend-migrate:
         condition: service_completed_successfully
+    environment:
+          BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
     healthcheck:
       test:
         [
@@ -56,6 +59,7 @@ services:
   frontend:
     build:
       context: ./frontend
+    init: true
     restart: unless-stopped
     depends_on:
       backend:
