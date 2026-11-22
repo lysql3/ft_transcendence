@@ -117,14 +117,14 @@ postgres-d: init-env
 	@echo "$(GREEN)Starting postgres in detached mode…$(RESET)"
 	$(CMD_DEV) up -d postgres
 
-judge-up:
+judge-up: judge-net
 	@echo "$(CYAN)Starting Judge0…$(RESET)"
 	cd $(JUDGE_DIR) && docker compose up -d db redis
 	sleep 10
 	cd $(JUDGE_DIR) && docker compose up -d
 
-# judge-net:
-# 	@docker network inspect judge_net >/dev/null 2>&1 || docker network create judge_net
+judge-net:
+	@docker network inspect judge_net >/dev/null 2>&1 || docker network create judge_net
 
 judge-down:
 	cd $(JUDGE_DIR) && docker compose down
