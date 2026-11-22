@@ -111,6 +111,22 @@ export class ProblemService {
 		};
 	}
 
+	async loadAllTestCases(problemId: number) {
+		const testCases = await this.prisma.testCase.findMany({
+			where: { problemId },
+			orderBy: { id: 'asc' },
+		});
+
+		return Promise.all(
+			testCases.map(async (tc) => ({
+				id: tc.id,
+				isHidden: tc.isHidden,
+				input: await readFile(join(DATA_DIR, tc.inputPath), 'utf-8'),
+				expectedOutput: await readFile(join(DATA_DIR, tc.outputPath), 'utf-8'),
+			})),
+		);
+	}
+
 	async update(id: number, dto: UpdateProblemFieldsDto) {
 		const problem = await this.findById(id);
 

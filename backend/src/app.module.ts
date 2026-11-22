@@ -13,6 +13,7 @@ import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { ProblemModule } from './problem/problem.module.js';
 import { LanguageModule } from './language/language.module.js';
 import { JudgeModule } from './judge/judge.module.js';
+import { SubmissionModule } from './submission/submission.module.js';
 
 @Module({
 	imports: [
@@ -29,6 +30,7 @@ import { JudgeModule } from './judge/judge.module.js';
 			ProblemModule,
 			LanguageModule,
 			JudgeModule,
+			SubmissionModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
