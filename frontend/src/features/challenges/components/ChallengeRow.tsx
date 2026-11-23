@@ -3,12 +3,7 @@ import { cn } from "@/lib/cn";
 import { Link } from "react-router-dom";
 import { type Challenge } from "@/features/challenges/types/challenge";
 import { Card } from "@/components/ui/Card";
-
-const difficultyStyles: Record<Challenge["difficulty"], string> = {
-  Easy: "text-success",
-  Medium: "text-warning",
-  Hard: "text-destructive",
-};
+import { difficultyPresentation } from "../lib/difficulty";
 
 export default function ChallengeRow({ challenge }: { challenge: Challenge }) {
   const StatusIcon = challenge.solved ? Check : Circle;
@@ -32,7 +27,7 @@ export default function ChallengeRow({ challenge }: { challenge: Challenge }) {
           <span
             className={cn(
               "inline-flex rounded-ui px-2 py-1 text-xs font-medium",
-              difficultyStyles[challenge.difficulty],
+              difficultyPresentation[challenge.difficulty].textClassName,
             )}
           >
             <span className="sr-only">Difficulty: </span>

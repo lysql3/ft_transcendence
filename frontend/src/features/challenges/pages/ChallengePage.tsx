@@ -1,43 +1,30 @@
+import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { NavBar } from "@/components/layout/NavBar";
-import { Card } from "@/components/ui/Card";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { sampleChallenges } from "../data/sampleChallenges";
+import ChallengeWorkspace from "../components/ChallengeWorkspace";
 
 export default function ChallengePage() {
   const { problemId } = useParams();
-  const challenge = sampleChallenges.find(
-    (item) => String(item.id) === problemId,
-  );
+  const challenge = sampleChallenges.find((item) => String(item.id) === problemId);
 
   if (!challenge) return <NotFoundPage />;
 
   return (
     <>
       <NavBar type="UserNavBar" />
-      <main className="mx-auto flex w-full max-w-page flex-col gap-stack px-gutter py-8">
-        <Link
-          to="/challenges"
-          className="w-fit text-sm text-accent underline underline-offset-4"
-        >
-          Back to challenges
-        </Link>
-        <Card as="article" variant="gradient" className="space-y-4">
-          <p className="text-xs uppercase tracking-ui text-muted-foreground">
-            {challenge.difficulty} / {challenge.tags}
-          </p>
-          <h1 className="break-words text-2xl font-bold tracking-ui text-foreground sm:text-3xl">
-            {challenge.title}
-          </h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {challenge.description}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {challenge.solved
-              ? "You have solved this challenge."
-              : "You haven’t solved this challenge yet."}
-          </p>
-        </Card>
+      <main>
+        <nav aria-label="Challenge navigation" className="px-gutter py-3">
+          <Link
+            to="/challenges"
+            className="inline-flex items-center gap-2 rounded-ui border border-border px-control-x py-control-y text-xs font-semibold uppercase tracking-ui text-accent transition-colors duration-(--duration) ease-ui hover:border-accent hover:bg-accent/10"
+          >
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            Back to challenges
+          </Link>
+        </nav>
+        <ChallengeWorkspace challenge={challenge} />
       </main>
     </>
   );

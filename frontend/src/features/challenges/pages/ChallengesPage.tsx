@@ -1,4 +1,5 @@
-import ChallengeState from "@/features/challenges/components/ChallengeState";
+import ChallengeProgress from "../components/ChallengeProgress";
+import { sampleChallenges } from "../data/sampleChallenges";
 import { NavBar } from "@/components/layout/NavBar";
 import ChallengeTable from "../components/ChallengeTable";
 
@@ -21,10 +22,10 @@ export default function ChallengesPage() {
           <h2 className="text-lg font-semibold uppercase tracking-ui text-foreground">
             Your progress
           </h2>
-          <ChallengeState />
+          <ChallengeProgress challenges={sampleChallenges} />
         </div>
 
-        <ChallengeTable />
+        <ChallengeTable challenges={sampleChallenges} />
       </main>
     </>
   );
