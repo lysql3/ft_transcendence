@@ -60,7 +60,7 @@ model TestCase {
   outputPath     String // NOTE : rename it to hold filePath
   isHidden       Boolean @default(true)
 
-  problem Problem @relation(fields: [problemId], references: [id])
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade) // NOTE : add onDelete Cascade to auto delete
 }
 
 model Language {
