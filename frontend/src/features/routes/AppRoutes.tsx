@@ -11,6 +11,8 @@ import LandingPage from "@/pages/LandingPage";
 import Dashboard from "@/pages/Dashboard";
 import ProfilePage from "@/pages/ProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import ChallengesPage from "@/features/challenges/pages/ChallengesPage";
+import ChallengePage from "@/features/challenges/pages/ChallengePage";
 
 import { ProtectedRoute } from "./guards/ProtectedRoute";
 import { GuestRoute } from "./guards/GuestRoute";
@@ -56,6 +58,8 @@ export function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/challenges" element={<ChallengesPage />} />
+        <Route path="/challenges/:problemId" element={<ChallengePage />} />
       </Route>
 
       <Route element={<TokenGuard />}>

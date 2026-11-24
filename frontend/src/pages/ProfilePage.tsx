@@ -13,7 +13,6 @@ import type { LucideIcon } from "lucide-react";
 import { NavBar } from "@/components/layout/NavBar";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Bar } from "@/components/ui/Bar";
-import avatarImage from "@/assets/images/default-avatar.png";
 import { authClient } from "@/features/auth/lib/authClient";
 
 /* ---------- Types ---------- */
@@ -426,7 +425,7 @@ function MatchHistoryCard({ matches }: { matches: Match[] }) {
     .slice(0, 4);
 
   return (
-    <Card variant="flat" padding="lg">
+    <Card variant="flat" padding="none">
       <CardHeader>
         <h2 className="font-semibold uppercase tracking-ui">
           MATCH <span className="text-accent">HISTORY</span>
@@ -456,7 +455,7 @@ export default function ProfilePage() {
   const player: Player = {
     name: session?.user?.name || "Player",
     email: session?.user?.email || "example@example.com",
-    avatarUrl: session?.user?.image || avatarImage,
+    avatarUrl: "https://api.dicebear.com/10.x/identicon/svg?backgroundColor=101216&rowColor=ff2e88,00e5ff,ffe600,7cff00,ff6a00,b400ff&seed=" + (session?.user?.name || "Player"),
     bio: "Competitive coder. Problem solver. Always ready for the next challenge.",
     level: 190,
     xp: 700,
