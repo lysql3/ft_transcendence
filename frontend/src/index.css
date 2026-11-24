@@ -128,7 +128,7 @@
   --info: #7dcfff;
 
   --radius: 4px;
-  --blur: 10px;
+  --blur: 4px;
   --glow-box: 0 0 24px -6px color-mix(in srgb, var(--accent) 65%, transparent);
   --glow-text: 0 0 8px color-mix(in srgb, var(--accent) 50%, transparent);
 }

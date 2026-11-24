@@ -103,7 +103,7 @@ function SectionHeading({
 
 function HeroCard({ className = "" }: { className?: string }) {
   return (
-    <Card variant="flat" className={`flex flex-col ${className}`}>
+    <Card variant="glass" className={`flex flex-col ${className}`}>
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs tracking-widest text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -213,7 +213,7 @@ const TerminalCard = ({ className = "" }: { className?: string }) => {
 
 function FeatureShowcaseCard({ className = "" }: { className?: string }) {
   return (
-    <Card as="section" variant="flat" className={`flex flex-col ${className}`}>
+    <Card as="section" variant="glass" className={`flex flex-col ${className}`}>
       <CardHeader>
         <SectionLabel>01 WHY CODEARENA?</SectionLabel>
       </CardHeader>
@@ -262,7 +262,7 @@ function FeatureShowcaseCard({ className = "" }: { className?: string }) {
 
 function ProtocolCard({ className = "" }: { className?: string }) {
   return (
-    <Card as="section" variant="flat" className={`flex flex-col ${className}`}>
+    <Card as="section" variant="glass" className={`flex flex-col ${className}`}>
       <CardHeader>
         <SectionLabel>02 THE PROTOCOL</SectionLabel>
       </CardHeader>
@@ -316,7 +316,7 @@ export function CtaCard({ className = "" }: { className?: string }) {
   return (
     <Card
       as="section"
-      variant="flat"
+      variant="glass"
       padding="none"
       className={`flex flex-col items-center justify-center p-8 text-center sm:p-12 md:p-16 ${className}`}
     >

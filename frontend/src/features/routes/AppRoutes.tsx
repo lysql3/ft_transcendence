@@ -59,7 +59,7 @@ export function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/challenges" element={<ChallengesPage />} />
-        <Route path="/challenges/:problemId" element={<ChallengePage />} />
+        <Route path="/challenges/:slug" element={<ChallengePage />} />
       </Route>
 
       <Route element={<TokenGuard />}>
