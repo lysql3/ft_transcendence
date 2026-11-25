@@ -1,10 +1,8 @@
-import { NavBar } from "@/components/layout/NavBar";
 import ChallengeTable from "../components/ChallengeTable";
 
 export default function ChallengesPage() {
   return (
     <>
-      <NavBar type="UserNavBar" />
       <main className="mx-auto flex w-full max-w-page flex-col gap-8 px-gutter py-8 sm:py-12">
         <header className="space-y-4 border-b border-border pb-8">
           <h1 className="text-3xl font-extrabold uppercase leading-tight tracking-ui text-foreground sm:text-5xl">

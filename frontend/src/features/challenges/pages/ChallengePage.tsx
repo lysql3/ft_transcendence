@@ -1,6 +1,5 @@
 import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { NavBar } from "@/components/layout/NavBar";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ChallengeWorkspace from "../components/ChallengeWorkspace";
 import { useEffect, useState } from "react";
@@ -42,7 +41,6 @@ function ChallengeDetail({ slug }: { slug: string }) {
 
   return (
     <>
-      <NavBar type="UserNavBar" />
       <main>
         <nav aria-label="Challenge navigation" className="px-gutter py-3">
           <Link

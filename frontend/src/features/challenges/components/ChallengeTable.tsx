@@ -23,7 +23,7 @@ const challengeFilters: ChallengeFilter[] = [
 ];
 
 const LOADING_DELAY_MS = 0;
-const SEARCH_DEBOUNCE_MS = 0;
+const SEARCH_DEBOUNCE_MS = 500;
 
 export default function ChallengeTable() {
   const titleId = useId();
