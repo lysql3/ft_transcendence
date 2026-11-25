@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch } from '@nestjs/common';
 import { Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { UpdateUserDto } from './dto/update-user.dto.js';
@@ -16,6 +16,11 @@ export class UsersController {
   @Patch('me')
   updateMe(@Body() data: UpdateUserDto, @Session() session: UserSession) {
     return this.usersService.update(session.user.id, data);
+  }
+
+  @Delete('me')
+  deleteMe(@Session() session: UserSession) {
+    return this.usersService.delete(session.user.id);
   }
 }
 

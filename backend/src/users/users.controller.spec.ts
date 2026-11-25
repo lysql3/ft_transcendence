@@ -4,8 +4,10 @@ import type { UsersService } from './users.service.js';
 
 describe('UsersController', () => {
   const update = vi.fn();
+  const deleteAccount = vi.fn();
   const service = {
     update,
+    delete: deleteAccount,
   } as unknown as UsersService;
   const controller = new UsersController(service);
   const session = {
@@ -31,5 +33,14 @@ describe('UsersController', () => {
       name: 'Updated name',
     });
     expect(update).toHaveBeenCalledOnce();
+  });
+
+  it('deletes the authenticated user', async () => {
+    deleteAccount.mockResolvedValue({ message: 'Account deleted' });
+
+    await expect(controller.deleteMe(session)).resolves.toEqual({
+      message: 'Account deleted',
+    });
+    expect(deleteAccount).toHaveBeenCalledWith('user-1');
   });
 });

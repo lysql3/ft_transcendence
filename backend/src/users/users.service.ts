@@ -19,4 +19,9 @@ export class UsersService {
       },
     });
   }
+
+  async delete(id: string) {
+    await this.prisma.user.delete({ where: { id } });
+    return { message: 'Account deleted' };
+  }
 }

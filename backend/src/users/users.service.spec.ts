@@ -30,4 +30,17 @@ describe('UsersService', () => {
       },
     });
   });
+
+  it('deletes the authenticated user', async () => {
+    const deleteUser = vi.fn().mockResolvedValue({ id: 'user-1' });
+    const prisma = {
+      user: { delete: deleteUser },
+    } as unknown as PrismaService;
+    const service = new UsersService(prisma);
+
+    await expect(service.delete('user-1')).resolves.toEqual({
+      message: 'Account deleted',
+    });
+    expect(deleteUser).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+  });
 });
