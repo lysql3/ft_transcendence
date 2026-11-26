@@ -1,0 +1,10 @@
+.git
+.env
+**/.env
+**/node_modules
+**/dist
+**/coverage
+backend
+data
+judge0
+runner

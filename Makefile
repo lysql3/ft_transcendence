@@ -134,14 +134,14 @@ backend-full: judge-up backend-d
 # prod
 prod: init-env build-prod
 	@echo "$(MAGENTA)Starting production environment…$(RESET)"
-	$(CMD_PROD) up backend frontend
+	$(CMD_PROD) up backend frontend-nginx
 
 prod-d: init-env build-prod
 	@echo "$(MAGENTA)Starting production environment in detached mode…$(RESET)"
-	$(CMD_PROD) up -d backend frontend
+	$(CMD_PROD) up -d backend frontend-nginx
 
 build-prod: init-env
-	@echo "$(CYAN)Building production images (target: prod)…$(RESET)"
+	@echo "$(CYAN)Building production images…$(RESET)"
 	$(CMD_PROD) build
 
 down-prod:

@@ -3,9 +3,13 @@ import { UsersController } from './users.controller.js';
 import type { UsersService } from './users.service.js';
 
 describe('UsersController', () => {
+  const findById = vi.fn();
   const update = vi.fn();
+  const deleteAccount = vi.fn();
   const service = {
+    findById,
     update,
+    delete: deleteAccount,
   } as unknown as UsersService;
   const controller = new UsersController(service);
   const session = {
@@ -16,8 +20,12 @@ describe('UsersController', () => {
     vi.clearAllMocks();
   });
 
-  it('returns the authenticated user', () => {
-    expect(controller.getCurrentUser(session)).toEqual({ user: session.user });
+  it('returns the authenticated user with its profile', async () => {
+    const user = { ...session.user, profile: { bio: 'Hello', elo: 1200 } };
+    findById.mockResolvedValue(user);
+
+    await expect(controller.getCurrentUser(session)).resolves.toEqual({ user });
+    expect(findById).toHaveBeenCalledWith('user-1');
   });
 
   it('updates the authenticated user', async () => {
@@ -31,5 +39,14 @@ describe('UsersController', () => {
       name: 'Updated name',
     });
     expect(update).toHaveBeenCalledOnce();
+  });
+
+  it('deletes the authenticated user', async () => {
+    deleteAccount.mockResolvedValue({ message: 'Account deleted' });
+
+    await expect(controller.deleteMe(session)).resolves.toEqual({
+      message: 'Account deleted',
+    });
+    expect(deleteAccount).toHaveBeenCalledWith('user-1');
   });
 });

@@ -44,10 +44,13 @@ services:
 
   frontend:
     build:
+      context: ./frontend
       target: dev
+    init: true
     restart: "no"
-    ports:
-      - "${FRONTEND_DEV_PORT:-5173}:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
     environment:
       - NODE_ENV=development
       - BACKEND_URL=http://backend:3000
@@ -55,17 +58,18 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - ft_tra_networks
 
-  # TEMPORARY: still builds the prod image (stale static build).
-  # Replaced by the real nginx service in plan feature 1.8.
   frontend-nginx:
-    build:
-      context: ./frontend
+    image: nginx:alpine
     restart: "no"
     depends_on:
       - frontend
     networks:
       - ft_tra_networks
+    volumes:
+      - ./infra/nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "${FRONTEND_HTTPS_PORT:-5443}:443"
 

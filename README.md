@@ -14,8 +14,8 @@ The application is structured into modular microservices communicating across an
                      │          ft_tra_networks               │
                      │                                        │
 ┌────────────────┐   │   ┌────────────────────────────────┐   │
-│  User Browser  │───┼──>│ frontend (Vite dev / Nginx)    │   │
-└────────────────┘   │   │  Dev: :5173  | Prod: :443      │   │
+│  User Browser  │───┼──>│ frontend-nginx (infra/nginx)  │   │
+└────────────────┘   │   │ Dev -> Vite | Prod -> static  │   │
                      │   └──────────────┬─────────────────┘   │
                      │                  │ /api proxy          │
                      │                  ▼                     │
@@ -47,15 +47,10 @@ The application is structured into modular microservices communicating across an
   - `build`: Compiles TypeScript with `npm run build` producing `/app/dist`.
   - `prod`: Hardened runtime containing only production dependencies (`npm ci --omit=dev`), runs compiled `node dist/main.js` under the non-root `node` user.
 
-### 3. `frontend` (React + Tailwind v4 + Vite)
+### 3. Frontend and Nginx Gateway
 
-- **Role:** Client user interface dashboard.
-- **Stack:** React 19, Tailwind CSS v4, Vite 8, TypeScript.
-- **Features:** Responsive dark theme, queries backend `/api/health` status with interactive feedback.
-- **Stages:**
-  - `dev`: Vite HMR dev server on port `5173`, bind-mounted `./frontend:/app` for instant hot module reloading. Proxies `/api` requests to `http://backend:3000`.
-  - `build`: Generates optimized static bundle (`npm run build` -> `/app/dist`).
-  - `prod`: `nginx:alpine` serving static assets over HTTPS with a self-signed certificate generated during image build, handles client-side SPA routing (`try_files $uri /index.html`), and reverse-proxies `/api/` to `http://backend:3000`.
+- **Frontend:** React 19, Tailwind CSS v4, and Vite 8. In development, the Vite service runs on internal port `5173` with `./frontend:/app` mounted for hot reload; Vite proxies `/api` to the backend.
+- **Gateway:** The single `frontend-nginx` service uses configs and its production Dockerfile from `infra/nginx`. In development it proxies browser requests to Vite. In production its image builds the frontend assets, serves them over HTTPS, supports SPA routing, and proxies `/api/` and `/socket.io/` to the backend.
 
 ---
 
@@ -81,11 +76,10 @@ DATABASE_URL=postgresql://...              # Full connection string
 BETTER_AUTH_SECRET=...                     # Long random secret; never commit
 BETTER_AUTH_URL=http://localhost:3000     # Backend auth URL
 FRONTEND_URL=http://localhost:5173        # Trusted frontend origin
-FRONTEND_DEV_PORT=5173                     # Vite dev port
-FRONTEND_HTTPS_PORT=5443                   # Dev Nginx HTTPS port
+FRONTEND_DEV_PORT=5173                     # Development Nginx gateway port
 FRONTEND_PROD_PORT=443                     # Production Nginx HTTPS port
 FRONTEND_HTTP_PORT=80                      # Production HTTP port
-BACKEND_URL=http://backend:3000            # Backend target for frontend reverse proxy
+BACKEND_URL=http://backend:3000            # Backend target for Vite's development proxy
 ```
 
 Create the local environment file and generate the Better Auth secret before
@@ -124,7 +118,7 @@ make logs-dev
 make down-dev
 ```
 
-- **Frontend:** Visit `http://localhost:5173`
+- **Frontend:** Visit `http://localhost:5173` (Nginx gateway to Vite)
 - **Backend API:** Visit `http://localhost:3000/api/health`
 - **Database:** Connect via `localhost:5432` (`user: transcendence`, `db: transcendence_dev`)
 - **Adminer:** Visit `http://localhost:8080` and use `postgres` as the server with the development database credentials
@@ -133,7 +127,7 @@ make down-dev
 
 ### Option B: Containerized Production (Docker Compose)
 
-Tests multi-stage optimized builds (compiled NestJS, non-root user, static Nginx frontend, closed DB ports).
+Tests optimized production builds (compiled NestJS, static frontend served by the infra Nginx gateway, closed DB ports).
 
 ```bash
 # Build and start prod stack
@@ -187,7 +181,10 @@ npm install
 npm run dev
 ```
 
-Frontend will start on `http://localhost:5173`. Vite proxies `/api` requests to `http://localhost:3000`.
+Frontend will start on `http://localhost:5173`. In containerized development,
+Nginx forwards browser traffic to Vite, which proxies `/api` requests to the
+backend. In bare-metal development, Vite is accessed directly and proxies `/api`
+requests to `http://localhost:3000`.
 
 ---
 
