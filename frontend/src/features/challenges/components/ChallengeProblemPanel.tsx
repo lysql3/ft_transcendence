@@ -25,7 +25,7 @@ export default function ChallengeProblemPanel({ challenge }: ChallengeProblemPan
           <span aria-hidden="true" className="text-muted-foreground">
             /
           </span>
-          <span className="text-muted-foreground">{challenge.tags}</span>
+          <span className="text-muted-foreground">{challenge.tags.join(", ")}</span>
           {challenge.solved && (
             <span className="inline-flex items-center gap-1.5 text-success">
               <Check aria-hidden="true" className="size-4" />

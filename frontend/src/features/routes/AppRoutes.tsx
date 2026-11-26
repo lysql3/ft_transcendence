@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 
 import LoginPage from "@/features/auth/pages/LoginPage";
 import SignInPage from "@/features/auth/pages/SignUpPage";
@@ -13,6 +13,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ChallengesPage from "@/features/challenges/pages/ChallengesPage";
 import ChallengePage from "@/features/challenges/pages/ChallengePage";
+import SettingsPage from "../settings/pages/SettingsPage";
 
 import { ProtectedRoute } from "./guards/ProtectedRoute";
 import { GuestRoute } from "./guards/GuestRoute";
@@ -41,7 +42,7 @@ function HomeRoute() {
     );
   }
 
-  return session ? <Dashboard /> : <LandingPage />;
+  return session ? <Navigate to="/dashboard" replace /> : <LandingPage />;
 }
 
 export function AppRoutes() {
@@ -50,16 +51,17 @@ export function AppRoutes() {
       <Route path="/" element={<HomeRoute />} />
 
       <Route element={<GuestRoute />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignInPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignInPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/challenges" element={<ChallengesPage />} />
-        <Route path="/challenges/:problemId" element={<ChallengePage />} />
+        <Route path="/challenges/:slug" element={<ChallengePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
       <Route element={<TokenGuard />}>

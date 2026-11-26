@@ -1,8 +1,12 @@
 import type { Challenge } from "../types/challenge";
 
-// Preview fixtures until the challenge API is connected.
+type SampleChallenge = Omit<Challenge, "slug" | "tags" | "visibleTestCases" | "hiddenTestCount"> & {
+  tags: string;
+};
+
+// Local preview fixtures.
 // Solve rates and personal completion states are fictional demonstration data.
-export const sampleChallenges: Challenge[] = [
+export const sampleChallenges: SampleChallenge[] = [
   {
     id: 1,
     title: "Two Sum",

@@ -1,19 +1,46 @@
 import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { NavBar } from "@/components/layout/NavBar";
 import NotFoundPage from "@/pages/NotFoundPage";
-import { sampleChallenges } from "../data/sampleChallenges";
 import ChallengeWorkspace from "../components/ChallengeWorkspace";
+import { useEffect, useState } from "react";
+import { Spinner } from "@/components/ui/Spinner";
+import { getProblem, ProblemApiError } from "../lib/problemApi";
+import type { Challenge } from "../types/challenge";
 
 export default function ChallengePage() {
-  const { problemId } = useParams();
-  const challenge = sampleChallenges.find((item) => String(item.id) === problemId);
+  const { slug } = useParams();
 
-  if (!challenge) return <NotFoundPage />;
+  return slug ? <ChallengeDetail key={slug} slug={slug} /> : <NotFoundPage />;
+}
+
+function ChallengeDetail({ slug }: { slug: string }) {
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [error, setError] = useState<"missing" | "failed" | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void getProblem(slug, controller.signal)
+      .then((problem) => {
+        if (!controller.signal.aborted) setChallenge(problem);
+      })
+      .catch((failure: unknown) => {
+        if (controller.signal.aborted) return;
+
+        setError(
+          failure instanceof ProblemApiError && failure.status === 404
+            ? "missing"
+            : "failed",
+        );
+      });
+
+    return () => controller.abort();
+  }, [slug]);
+
+  if (error === "missing") return <NotFoundPage />;
 
   return (
     <>
-      <NavBar type="UserNavBar" />
       <main>
         <nav aria-label="Challenge navigation" className="px-gutter py-3">
           <Link
@@ -24,7 +51,15 @@ export default function ChallengePage() {
             Back to challenges
           </Link>
         </nav>
-        <ChallengeWorkspace challenge={challenge} />
+        {error === "failed" ? (
+          <p role="alert" className="p-gutter">
+            Unable to load this challenge. Refresh to try again.
+          </p>
+        ) : challenge === null ? (
+          <Spinner label="Loading challenge" />
+        ) : (
+          <ChallengeWorkspace challenge={challenge} />
+        )}
       </main>
     </>
   );
