@@ -44,7 +44,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 			return;
 		}
 
-		client.join(`user:${session.user.id}`);
+		await client.join(`user:${session.user.id}`);
 		this.logger.log(`Client ${client.id} joined user:${session.user.id}`);
 	}
 
