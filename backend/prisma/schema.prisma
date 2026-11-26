@@ -7,6 +7,23 @@ datasource db {
   provider = "postgresql"
 }
 
+enum RoomStatus {
+  waiting
+  in_progress
+  finished
+}
+
+enum RoomVisibility {
+  public
+  private
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  declined
+}
+
 model User {
   id              String   @id
   name            String
@@ -28,6 +45,10 @@ model User {
   accounts Account[]
 
   @@map("user")
+
+  createdRooms Room[]       @relation("RoomCreator")
+  guestRooms   Room[]       @relation("RoomGuest")
+  invitations  Invitation[] @relation("RoomInvitee")
 }
 
 model UserProfile {
@@ -51,6 +72,7 @@ model Problem {
   testCases   TestCase[]
   submissions Submission[]
   matches     Match[]
+  rooms       Room[]
 }
 
 model TestCase {
@@ -86,6 +108,42 @@ model Match {
   player2     User         @relation("Player2Matches", fields: [player2Id], references: [id])
   winner      User?        @relation("WinnerMatches", fields: [winnerId], references: [id])
   submissions Submission[]
+  room        Room?
+}
+
+model Room {
+  id         Int            @id @default(autoincrement())
+  code       String         @unique @db.VarChar(32)
+  visibility RoomVisibility @default(private)
+  status     RoomStatus     @default(waiting)
+  problemId  Int
+  creatorId  String
+  guestId    String?
+  matchId    Int?           @unique
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  problem    Problem     @relation(fields: [problemId], references: [id])
+  creator    User        @relation("RoomCreator", fields: [creatorId], references: [id])
+  guest      User?       @relation("RoomGuest", fields: [guestId], references: [id])
+  match      Match?      @relation(fields: [matchId], references: [id])
+  invitations Invitation[]
+
+  @@index([status, visibility])
+}
+
+model Invitation {
+  id            Int              @id @default(autoincrement())
+  roomId        Int
+  invitedUserId String
+  status        InvitationStatus @default(pending)
+  createdAt     DateTime         @default(now())
+
+  room        Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  invitedUser User @relation("RoomInvitee", fields: [invitedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, invitedUserId])
+  @@index([invitedUserId, status])
 }
 
 model Submission {
