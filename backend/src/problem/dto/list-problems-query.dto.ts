@@ -3,6 +3,18 @@ import { IsIn, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class ListProblemsQueryDto {
 	@IsOptional()
+	@IsString()
+	search?: string;
+
+	@IsOptional()
+	@IsIn(['title', 'difficulty', 'solveRate', 'status'])
+	sortBy?: 'title' | 'difficulty' | 'solveRate' | 'status';
+
+	@IsOptional()
+	@IsIn(['asc', 'desc'])
+	sortOrder?: 'asc' | 'desc';
+
+	@IsOptional()
 	@IsIn(['easy', 'medium', 'hard'])
 	difficulty?: string;
 

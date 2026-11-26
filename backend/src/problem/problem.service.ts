@@ -12,9 +12,17 @@ import {
 	Injectable
 } from '@nestjs/common';
 import { basename, dirname, join } from 'path/posix';
-import type { Prisma } from '../generated/prisma/client.js';
+import { Prisma, type Problem } from '../generated/prisma/client.js';
 
 const DATA_DIR = join(process.cwd(), 'data');
+
+type ProblemListItem = Pick<
+  Problem,
+  'id' | 'title' | 'slug' | 'difficulty' | 'tags' | 'createdAt'
+> & {
+  solvingPercentage: number | null;
+  solved: boolean | null;
+};
 
 @Injectable()
 export class ProblemService {
@@ -64,28 +72,81 @@ export class ProblemService {
 		}
 	}
 
-	async findAll(query: ListProblemsQueryDto) {
-		const page = query.page ?? 1;
-		const limit = query.limit ?? 20;
+	async findAll(query: ListProblemsQueryDto, userId?: string) {
+	  const page = query.page ?? 1;
+	  const limit = query.limit ?? 20;
 
-		const where: Prisma.ProblemWhereInput = {};
-		if (query.difficulty) where.difficulty = query.difficulty;
-		if (query.tag) where.tags = { has: query.tag };
+	  const filters: Prisma.Sql[] = [];
+	  if (query.difficulty) {
+		filters.push(Prisma.sql`"difficulty" = ${query.difficulty}`);
+	  }
+	  if (query.tag) {
+		filters.push(Prisma.sql`"tags" @> ARRAY[${query.tag}]::text[]`);
+	  }
 
-		const [items, total] = await this.prisma.$transaction([
-			this.prisma.problem.findMany({
-				where,
-				select: { id: true, title: true, slug: true, difficulty: true, tags: true, createdAt: true },
-				orderBy: { createdAt: 'desc' },
-				skip: (page - 1) * limit,
-				take: limit,
-			}),
-			this.prisma.problem.count({ where }),
-		]);
+	  const search = query.search?.trim();
+	  if (search) {
+		filters.push(Prisma.sql`"title" ILIKE ${`%${search}%`}`);
+	  }
 
-		return { items, total, page, limit };
+	  const where = filters.length
+		? Prisma.sql`WHERE ${Prisma.join(filters, ' AND ')}`
+		: Prisma.empty;
+
+	  const defaultOrder =
+		query.sortBy === 'solveRate' || query.sortBy === 'status' ? 'desc' : 'asc';
+	  const direction =
+		(query.sortOrder ?? defaultOrder) === 'desc'
+		  ? Prisma.sql`DESC`
+		  : Prisma.sql`ASC`;
+
+	  let orderBy = Prisma.sql`"createdAt" DESC, "id" DESC`;
+
+	  if (query.sortBy === 'title') {
+		orderBy = Prisma.sql`LOWER("title") ${direction}, "id" ASC`;
+	  } else if (query.sortBy === 'difficulty') {
+		orderBy = Prisma.sql`
+		  CASE "difficulty" WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 WHEN 'hard' THEN 3 END
+		  ${direction} NULLS LAST, LOWER("title") ASC, "id" ASC
+		`;
+	  } else if (query.sortBy === 'solveRate') {
+		orderBy = Prisma.sql`
+		  "solvingPercentage" ${direction} NULLS LAST, LOWER("title") ASC, "id" ASC
+		`;
+	  } else if (query.sortBy === 'status') {
+		orderBy = Prisma.sql`
+		  "solved" ${direction} NULLS LAST, LOWER("title") ASC, "id" ASC
+		`;
+	  }
+
+	  const solved = userId === undefined
+		? Prisma.sql`NULL::boolean`
+		: Prisma.sql`COALESCE(stats."solved", false)`;
+
+	  const [items, counts] = await this.prisma.$transaction([
+		this.prisma.$queryRaw<ProblemListItem[]>`
+		  SELECT p."id", p."title", p."slug", p."difficulty", p."tags", p."createdAt",
+			stats."solvingPercentage", ${solved} AS "solved"
+		  FROM "Problem" AS p
+		  LEFT JOIN (
+			SELECT "problemId",
+			  COUNT(DISTINCT "userId") FILTER (WHERE "status" = 'accepted')::double precision
+				/ COUNT(DISTINCT "userId") AS "solvingPercentage",
+			  BOOL_OR("status" = 'accepted' AND "userId" = ${userId ?? null}::text) AS "solved"
+			FROM "Submission"
+			GROUP BY "problemId"
+		  ) AS stats ON stats."problemId" = p."id"
+		  ${where}
+		  ORDER BY ${orderBy}
+		  LIMIT ${limit} OFFSET ${(page - 1) * limit}
+		`,
+		this.prisma.$queryRaw<{ total: bigint }[]>`
+		  SELECT COUNT(*) AS total FROM "Problem" ${where}
+		`,
+	  ]);
+
+	  return { items, total: Number(counts[0].total), page, limit };
 	}
-
 	async findOneBySlug(slug: string) {
 		const problem = await this.prisma.problem.findUnique({
 			where: { slug },
@@ -109,6 +170,22 @@ export class ProblemService {
 			),
 			hiddenTestCount: testCases.length - visible.length,
 		};
+	}
+
+	async loadAllTestCases(problemId: number) {
+		const testCases = await this.prisma.testCase.findMany({
+			where: { problemId },
+			orderBy: { id: 'asc' },
+		});
+
+		return Promise.all(
+			testCases.map(async (tc) => ({
+				id: tc.id,
+				isHidden: tc.isHidden,
+				input: await readFile(join(DATA_DIR, tc.inputPath), 'utf-8'),
+				expectedOutput: await readFile(join(DATA_DIR, tc.outputPath), 'utf-8'),
+			})),
+		);
 	}
 
 	async update(id: number, dto: UpdateProblemFieldsDto) {

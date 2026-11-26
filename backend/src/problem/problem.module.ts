@@ -7,5 +7,6 @@ import { ProblemService } from './problem.service.js';
   // imports: [PrismaModule],
   controllers: [ProblemController],
   providers: [ProblemService],
+  exports: [ProblemService],
 })
 export class ProblemModule {}

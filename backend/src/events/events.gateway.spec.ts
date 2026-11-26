@@ -7,7 +7,10 @@ describe('EventsGateway', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EventsGateway],
+      providers: [
+        EventsGateway,
+        { provide: 'AUTH', useValue: { api: { getSession: vi.fn() } } },
+      ],
     }).compile();
 
     gateway = module.get<EventsGateway>(EventsGateway);
