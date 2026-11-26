@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardDescription, CardHeader } from "@/components/ui/Card";
 import { useState } from "react";
-import ThemePallete from "./ThemePallete";
+import ThemePalette from "./ThemePalette";
 
 const themes = [
   { id: "matrix-dark", name: "Matrix Dark" },
@@ -30,7 +30,7 @@ function selectTheme(theme: string) {
   localStorage.setItem("codearena-theme", theme);
 }
 
-export default function Style() {
+export default function AppearanceSettings() {
   const [selectedTheme, setSelectedTheme] = useState(
     () => document.documentElement.dataset.theme ?? "matrix-dark",
   );
@@ -45,11 +45,11 @@ export default function Style() {
       as="section"
       variant="solid"
       padding="none"
-      className="theme-card"
+      className="settings-panel"
       aria-labelledby="theme-heading"
     >
       <CardHeader>
-        <h2 id="theme-heading" className="theme-card-heading">
+        <h2 id="theme-heading" className="settings-panel-heading">
           Theme
         </h2>
         <CardDescription>Choose a color theme for CodeArena.</CardDescription>
@@ -67,7 +67,7 @@ export default function Style() {
               aria-pressed={isSelected}
               onClick={() => handleThemeSelect(id)}
             >
-              <ThemePallete theme={id} />
+              <ThemePalette theme={id} />
               <span className="theme-option-label">
                 {name}
                 {isSelected && <Check size={16} aria-hidden="true" />}

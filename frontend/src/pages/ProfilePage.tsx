@@ -452,9 +452,9 @@ export default function ProfilePage() {
   const { data: session } = authClient.useSession();
 
   const player: Player = {
-    name: session?.user?.name || "Player",
+    name: session?.user?.username || "Player",
     email: session?.user?.email || "example@example.com",
-    avatarUrl: session?.user?.image || "https://api.dicebear.com/10.x/identicon/svg?backgroundColor=101216&rowColor=ff2e88,00e5ff,ffe600,7cff00,ff6a00,b400ff&seed=" + (session?.user?.name || "Player"),
+    avatarUrl: session?.user?.image || "https://api.dicebear.com/10.x/identicon/svg?backgroundColor=101216&rowColor=ff2e88,00e5ff,ffe600,7cff00,ff6a00,b400ff&seed=" + (session?.user?.username || "Player"),
     bio: "Competitive coder. Problem solver. Always ready for the next challenge.",
     level: 190,
     xp: 700,

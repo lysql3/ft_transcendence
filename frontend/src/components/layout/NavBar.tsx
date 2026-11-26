@@ -184,7 +184,7 @@ function UserNavBar({ user: suppliedUser }: { user?: NavUser }) {
   const [logoutError, setLogoutError] = useState<string | null>(null);
 
   const user: NavUser = suppliedUser ?? {
-    name: session?.user.name || "Player",
+    name: session?.user.username || session?.user.name || "Player",
     email: session?.user.email || "example@example.com",
     avatarUrl: "https://api.dicebear.com/10.x/identicon/svg?backgroundColor=101216&rowColor=ff2e88,00e5ff,ffe600,7cff00,ff6a00,b400ff&seed=" + (session?.user?.name || "Player"),
   };

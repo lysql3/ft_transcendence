@@ -1,6 +1,6 @@
 
 
-export default function ThemePallete({ theme }: { theme: string }) {
+export default function ThemePalette({ theme }: { theme: string }) {
   return (
     <span className="theme-palette" data-theme={theme} aria-hidden="true">
       <span />

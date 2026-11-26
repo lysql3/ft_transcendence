@@ -627,6 +627,14 @@
   }
 }
 
+.settings-page {
+  @apply mx-auto w-full max-w-page px-gutter py-gutter;
+}
+
+.settings-heading {
+  @apply mb-stack text-2xl font-bold uppercase tracking-ui text-foreground md:text-3xl;
+}
+
 .settings-layout {
   @apply mx-auto grid w-full max-w-page grid-cols-1 items-start gap-gutter p-gutter;
   @apply md:grid-cols-[12rem_minmax(0,1fr)];
@@ -640,11 +648,11 @@
   @apply md:justify-start;
 }
 
-.theme-card {
-  @apply p-4 sm:p-card;
+.settings-panel {
+  @apply min-w-0 p-4 sm:p-card;
 }
 
-.theme-card-heading {
+.settings-panel-heading {
   @apply text-lg font-bold uppercase tracking-ui;
 }
 
@@ -687,39 +695,12 @@
   background-color: var(--text-primary);
 }
 
-.account-card {
-  @apply w-full p-4 sm:p-card;
-}
-
 .account-card-header {
   @apply mb-stack flex flex-col items-center gap-inline text-center;
 }
 
-.account-card-heading {
-  @apply text-lg font-bold uppercase tracking-ui;
-}
-
 .account-avatar {
-  @apply size-50;
-}
-
-.account-photo-button {
-  @apply relative shrink-0 cursor-pointer rounded-ui;
-}
-
-.account-photo-edit {
-  @apply absolute inset-0 grid place-items-center rounded-ui bg-background/75 text-accent;
-}
-
-@media (hover: hover) {
-  .account-photo-edit {
-    opacity: 0;
-  }
-
-  .account-photo-button:hover .account-photo-edit,
-  .account-photo-button:focus-visible .account-photo-edit {
-    opacity: 1;
-  }
+  @apply size-32 sm:size-50;
 }
 
 .account-fields {
@@ -727,11 +708,28 @@
 }
 
 .account-field {
-  @apply grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 rounded-ui border border-border bg-background p-3;
+  @apply grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-ui border border-border bg-background p-3;
 }
 
-.account-field-content {
-  @apply min-w-0;
+.account-field-form {
+  @apply items-stretch;
+}
+
+.account-field-input {
+  @apply col-start-1 grid min-w-0 grid-rows-subgrid;
+  grid-row: 1 / span 2;
+}
+
+.account-field-input:has([role="alert"]) {
+  grid-row-end: span 3;
+}
+
+.account-field-form > .account-edit-button {
+  @apply col-start-2 row-start-2 self-center;
+}
+
+.account-field-form > button[type="submit"] {
+  @apply col-start-1 justify-self-start;
 }
 
 .account-field-label {

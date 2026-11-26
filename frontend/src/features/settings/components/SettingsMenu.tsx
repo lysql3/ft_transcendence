@@ -3,29 +3,31 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
 const menuItems = [
-  { title: "Account", icon: UserRound },
-  { title: "Style", icon: Palette },
-];
+  { id: "account", title: "Account", icon: UserRound },
+  { id: "appearance", title: "Style", icon: Palette },
+] as const;
 
-type SettingMenuProps = {
-  selectedSection: string;
-  onSelect: (title: string) => void;
+export type SettingsSection = (typeof menuItems)[number]["id"];
+
+type SettingsMenuProps = {
+  selectedSection: SettingsSection;
+  onSelect: (section: SettingsSection) => void;
 };
 
-export function SettingMenu({ selectedSection, onSelect }: SettingMenuProps) {
+export function SettingsMenu({ selectedSection, onSelect }: SettingsMenuProps) {
   return (
     <Card variant="solid" padding="sm" as="aside" aria-label="Settings sections">
       <div className="settings-menu">
-        {menuItems.map(({ title, icon: Icon }) => {
-          const isSelected = selectedSection === title;
+        {menuItems.map(({ id, title, icon: Icon }) => {
+          const isSelected = selectedSection === id;
 
           return (
             <Button
-              key={title}
+              key={id}
               variant={isSelected ? "outline" : "ghost"}
               className="settings-menu-button"
               aria-pressed={isSelected}
-              onClick={() => onSelect(title)}
+              onClick={() => onSelect(id)}
             >
               <Icon size={16} aria-hidden="true" />
               {title}
