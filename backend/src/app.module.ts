@@ -14,9 +14,14 @@ import { ProblemModule } from './problem/problem.module.js';
 import { LanguageModule } from './language/language.module.js';
 import { JudgeModule } from './judge/judge.module.js';
 import { SubmissionModule } from './submission/submission.module.js';
+import { RunModule } from './run/run.module.js';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { UserThrottlerGuard } from './common/user-throttler.guard.js';
 
 @Module({
 	imports: [
+		ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
 		HealthModule,
 		PrismaModule,
 		UsersModule,
@@ -31,8 +36,12 @@ import { SubmissionModule } from './submission/submission.module.js';
 			LanguageModule,
 			JudgeModule,
 			SubmissionModule,
+			RunModule,
+
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [AppService,
+		{ provide: APP_GUARD, useClass: UserThrottlerGuard },
+	],
 })
 export class AppModule {}

@@ -4,12 +4,7 @@ import { ProblemService } from '../problem/problem.service.js';
 import { JudgeService, JudgeStatus } from '../judge/judge.service.js';
 import { EventsGateway } from '../events/events.gateway.js';
 import { CreateSubmissionDto } from './dto/create-submission.dto.js';
-
-const JUDGE_LANGUAGE_IDS: Record<string, number> = {
-	python: 71,
-	cpp: 54,
-	javascript: 63,
-};
+import { JUDGE_LANGUAGE_IDS } from '../judge/judge-languages.js';
 
 @Injectable()
 export class SubmissionService {
