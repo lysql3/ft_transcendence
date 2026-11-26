@@ -12,6 +12,12 @@ if (!betterAuthSecret) {
   throw new Error('BETTER_AUTH_SECRET is required');
 }
 
+const githubClientId = process.env.GITHUB_CLIENT_ID;
+const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+if (Boolean(githubClientId) !== Boolean(githubClientSecret)) {
+  throw new Error('GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET must both be set');
+}
+
 export const createAuth = (prisma: PrismaClient) =>
   betterAuth({
     database: prismaAdapter(prisma, {
@@ -33,6 +39,17 @@ export const createAuth = (prisma: PrismaClient) =>
     emailAndPassword: {
       enabled: true,
     },
+
+    ...(githubClientId && githubClientSecret
+      ? {
+          socialProviders: {
+            github: {
+              clientId: githubClientId,
+              clientSecret: githubClientSecret,
+            },
+          },
+        }
+      : {}),
 
     plugins: [
       username({

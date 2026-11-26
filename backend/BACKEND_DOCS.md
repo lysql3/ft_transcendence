@@ -155,23 +155,23 @@ getOptional(@Session() session: UserSession) {
 The following routes require an active session through the global guard:
 
 ```text
-GET    /api/users
 GET    /api/users/me
-GET    /api/users/:id
-GET    /api/users/:id/profile
-PATCH  /api/users/:id
-PATCH  /api/users/:id/profile
-DELETE /api/users/:id
+PATCH  /api/users/me
+DELETE /api/users/me
 ```
 
 `@Session()` provides the authenticated session to a controller method:
 
 ```ts
 @Get('me')
-getCurrentUser(@Session() session: UserSession) {
-  return { user: session.user };
+async getCurrentUser(@Session() session: UserSession) {
+  const user = await this.usersService.findById(session.user.id);
+  return { user };
 }
 ```
+
+The `GET` response includes `user.profile`; the `PATCH` response also includes
+the profile relation. `profile` is `null` if the user has no profile row.
 
 ## Authentication Versus Authorization
 
