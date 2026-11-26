@@ -18,6 +18,7 @@ type Auth = ReturnType<typeof createAuth>;
 @WebSocketGateway({
 	cors: { origin: process.env.FRONTEND_URL, credentials: true },
 })
+@WebSocketGateway()
 export class EventsGateway
 implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {

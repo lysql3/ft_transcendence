@@ -2,20 +2,20 @@ services:
   backend:
     build:
       target: prod
-    env_file:
-      - .env
     environment:
+      - PORT=3000
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
 
   backend-migrate:
     build:
       target: build
-    env_file:
-      - .env
     environment:
+      - PORT=3000
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - BETTER_AUTH_URL=https://localhost
+      - FRONTEND_URL=https://localhost
     command: npm run prisma:migrate:deploy
 
   frontend:

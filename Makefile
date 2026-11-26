@@ -1,5 +1,7 @@
 COMPOSE			= docker compose
+LOAD_ENV 		= set -a && . ./$(ENV_FILE) && set +a
 ENV_FILE		= .env
+
 
 COMPOSE_BASE	= docker-compose.base.yml
 COMPOSE_DEV		= docker-compose.dev.yml
@@ -20,7 +22,8 @@ MAGENTA	= \033[35m
 .PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
 	backend backend-d build-backend \
         prod prod-d build-prod down-prod restart-prod logs-prod \
-	down clean fclean docker-clean init-env test test-e2e lint build-local
+	down clean fclean docker-clean init-env test test-e2e lint build-local \
+	db-up migrate-dev migrate-deploy host-backend psql
 
 init-env:
 	@if [ ! -f .env ]; then \
@@ -43,14 +46,42 @@ init-env:
 		printf 'FRONTEND_URL=http://localhost:5173\n' >> .env; \
 	fi
 
+# database
+db-up: init-env
+	$(CMD_DEV) up -d --wait postgres
+
+migrate-dev: db-up
+	$(LOAD_ENV) && cd backend && npx prisma migrate dev
+
+migrate-deploy: db-up
+	$(LOAD_ENV) && cd backend && npm run prisma:migrate:deploy
+
+migrate-status: db-up
+	$(LOAD_ENV) && cd backend && npx prisma migrate status
+
+migrate-reset: db-up
+	$(LOAD_ENV) && cd backend && npx prisma migrate reset
+
+generate:
+	$(LOAD_ENV) && cd backend && npm run prisma:generate
+
+restart-backend:
+	$(CMD_DEV) restart backend
+
+host-backend: db-up
+	$(LOAD_ENV) && cd backend && npm run prisma:generate && npm run start:dev
+
+psql:
+	$(CMD_DEV) exec postgres sh -c 'psql -U "$$POSTGRES_USER" "$$POSTGRES_DB"'
+
 # dev
 dev: init-env build-dev
 	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
-	$(CMD_DEV) up postgres adminer backend frontend frontend-nginx
+	$(CMD_DEV) up -V postgres adminer backend frontend frontend-nginx
 
 dev-d: init-env build-dev
 	@echo "$(GREEN)Starting development environment in detached mode…$(RESET)"
-	$(CMD_DEV) up -d postgres adminer backend frontend frontend-nginx
+	$(CMD_DEV) up -d -V postgres adminer backend frontend frontend-nginx
 
 build-dev: init-env
 	@echo "$(CYAN)Building dev images (target: dev)…$(RESET)"
@@ -63,7 +94,7 @@ down-dev:
 restart-dev: down-dev dev
 
 logs-dev:
-	$(CMD_DEV) logs -f
+	$(CMD_DEV) logs -f $(filter-out $@,$(MAKECMDGOALS))
 
 # postgres and backend and dependencies
 backend: init-env build-backend
@@ -120,7 +151,8 @@ down-prod:
 restart-prod: down-prod prod
 
 logs-prod:
-	$(CMD_PROD) logs -f
+	$(CMD_PROD) logs -f $(filter-out $@,$(MAKECMDGOALS))
+
 
 # cleanup
 down:
@@ -148,7 +180,7 @@ test: init-env
 	@echo "$(CYAN)Running backend unit tests…$(RESET)"
 	cd backend && npm test
 
-test-e2e: init-env
+test-e2e: init-env db-up
 	@echo "$(CYAN)Running backend e2e tests…$(RESET)"
 	set -a && . ./$(ENV_FILE) && set +a && \
 	cd backend && DATABASE_URL="postgresql://$$POSTGRES_USER:$$POSTGRES_PASSWORD@localhost:$${POSTGRES_PORT:-5432}/$$POSTGRES_DB" npm run test:e2e

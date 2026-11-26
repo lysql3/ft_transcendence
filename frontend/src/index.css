@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 @import "tailwindcss";
 
-@custom-variant dark (&:is([data-theme="matrix-dark"], [data-theme="cyberpunk"], [data-theme="matrix-dark"] *, [data-theme="cyberpunk"] *));
+@custom-variant dark (&:is([data-theme="matrix-dark"], [data-theme="cyberpunk"], [data-theme="tokyo-night"], [data-theme="catppuccin"], [data-theme="matrix-dark"] *, [data-theme="cyberpunk"] *, [data-theme="tokyo-night"] *, [data-theme="catppuccin"] *));
 
 :root {
   /* layout */
@@ -53,7 +53,7 @@
   --info: #3bc9ff;
 
   --radius: 0px;
-  --blur: 10px;
+  --blur: 2px;
   --glow-box: 0 0 24px -6px var(--accent);
   --glow-text: 0 0 8px var(--accent), 0 0 20px var(--accent);
 }
@@ -106,6 +106,57 @@
   --blur: 12px;
   --glow-box: 0 0 24px -4px var(--accent);
   --glow-text: 0 0 8px var(--accent), 0 0 24px var(--accent);
+}
+
+[data-theme="tokyo-night"] {
+  color-scheme: dark;
+
+  --bg-primary: #1a1b26;
+  --bg-secondary: #1f2335;
+  --bg-tertiary: #292e42;
+  --text-primary: #c0caf5;
+  --text-muted: #9aa5ce;
+  --accent: #7aa2f7;
+  --accent-text: #7aa2f7;
+  --on-accent: #1a1b26;
+  --border: #545c7e;
+  --logo-text: #bb9af7;
+  --danger: #f7768e;
+  --on-danger: #1a1b26;
+  --success: #9ece6a;
+  --warning: #e0af68;
+  --info: #7dcfff;
+
+  --radius: 4px;
+  --blur: 10px;
+  --glow-box: 0 0 24px -6px color-mix(in srgb, var(--accent) 65%, transparent);
+  --glow-text: 0 0 8px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* Catppuccin Mocha */
+[data-theme="catppuccin"] {
+  color-scheme: dark;
+
+  --bg-primary: #1e1e2e;
+  --bg-secondary: #181825;
+  --bg-tertiary: #313244;
+  --text-primary: #cdd6f4;
+  --text-muted: #a6adc8;
+  --accent: #cba6f7;
+  --accent-text: #cba6f7;
+  --on-accent: #1e1e2e;
+  --border: #585b70;
+  --logo-text: #f5e0dc;
+  --danger: #f38ba8;
+  --on-danger: #1e1e2e;
+  --success: #a6e3a1;
+  --warning: #f9e2af;
+  --info: #89dceb;
+
+  --radius: 4px;
+  --blur: 10px;
+  --glow-box: 0 0 22px -6px color-mix(in srgb, var(--accent) 55%, transparent);
+  --glow-text: 0 0 8px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 @theme inline {
@@ -171,7 +222,8 @@
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+  /* Keep loading feedback animated; reduce decorative motion elsewhere. */
+  *:not([data-loading-spinner]), ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;

@@ -1,4 +1,5 @@
 import type { ElementType, HTMLAttributes, ReactNode } from "react";
+import { cn } from "@/lib/cn";
 
 type CardVariant = "glass" | "solid" | "gradient" | "outline" | "flat";
 type CardPadding = "none" | "sm" | "md" | "lg";
@@ -16,9 +17,6 @@ type CardProps = HTMLAttributes<HTMLElement> & {
   corners?: boolean;
 };
 
-const cx = (...parts: (string | false | undefined)[]) =>
-  parts.filter(Boolean).join(" ");
-
 const variants: Record<CardVariant, string> = {
   glass: "bg-card/10 backdrop-blur-glass shadow-lg shadow-black/20",
   solid: "bg-card text-card-foreground",
@@ -35,7 +33,7 @@ const paddings: Record<CardPadding, string> = {
 };
 
 const interactiveStyles =
-  "hover:-translate-y-0.5 hover:border-accent hover:shadow-glow";
+  "motion-safe:hover:-translate-y-0.5 hover:border-accent hover:shadow-glow";
 
 const cornerStyles =
   "before:pointer-events-none before:absolute before:-left-px before:-top-px before:h-3 before:w-3 before:border-l-2 before:border-t-2 before:border-accent " +
@@ -53,7 +51,7 @@ export function Card({
 }: CardProps) {
   return (
     <Tag
-      className={cx(
+      className={cn(
         "relative border border-border rounded-ui transition-[transform,border-color,box-shadow] duration-(--duration) ease-ui",
         variants[variant],
         paddings[padding],
@@ -74,7 +72,7 @@ export function CardHeader({
   className,
   ...rest
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cx("mb-4 space-y-1", className)} {...rest} />;
+  return <div className={cn("mb-4 space-y-1", className)} {...rest} />;
 }
 
 export function CardTitle({
@@ -83,7 +81,7 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cx("text-lg font-bold tracking-ui text-foreground", className)}
+      className={cn("text-lg font-bold tracking-ui text-foreground", className)}
       {...rest}
     />
   );
@@ -94,7 +92,7 @@ export function CardDescription({
   ...rest
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cx("text-sm text-muted-foreground", className)} {...rest} />
+    <p className={cn("text-sm text-muted-foreground", className)} {...rest} />
   );
 }
 
@@ -102,7 +100,7 @@ export function CardContent({
   className,
   ...rest
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cx("text-sm text-foreground", className)} {...rest} />;
+  return <div className={cn("text-sm text-foreground", className)} {...rest} />;
 }
 
 export function CardFooter({
@@ -111,7 +109,7 @@ export function CardFooter({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cx(
+      className={cn(
         "mt-6 flex items-center gap-3 border-t border-border pt-4",
         className,
       )}

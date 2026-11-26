@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { cn } from "@/lib/cn";
+import defaultAvatar from "@/assets/images/default-avatar.png";
 
 type AvatarProps = {
   src?: string | null;
@@ -6,25 +8,33 @@ type AvatarProps = {
   className?: string;
 };
 
-/** Square avatar. Shows the profile image, falls back to the first letter
- *  if there is no image or it fails to load. */
-export function Avatar({ src, name, className = "size-8" }: AvatarProps) {
-  const [failed, setFailed] = useState(false);
-  const showImage = !!src && !failed;
+export function Avatar({ src, name, className }: AvatarProps) {
+  const [failedSources, setFailedSources] = useState<string[]>([]);
+
+  const imageSrc = [src?.trim(), defaultAvatar].find(
+    (candidate) => candidate && !failedSources.includes(candidate),
+  );
 
   return (
     <span
-      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-ui border border-accent/40 bg-accent/10 text-xs font-bold text-accent ${className}`}
+      className={cn(
+        "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-ui border border-accent/40 bg-accent/10 text-xs font-bold text-accent",
+        className,
+      )}
     >
-      {showImage ? (
+      {imageSrc ? (
         <img
-          src={src}
+          src={imageSrc}
           alt=""
           className="size-full object-cover"
-          onError={() => setFailed(true)}
+          onError={() =>
+            setFailedSources((previous) =>
+              previous.includes(imageSrc) ? previous : [...previous, imageSrc],
+            )
+          }
         />
       ) : (
-        name.charAt(0).toUpperCase()
+        name.trim().charAt(0).toUpperCase() || "?"
       )}
     </span>
   );

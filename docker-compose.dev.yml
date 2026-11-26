@@ -24,8 +24,6 @@ services:
     restart: "no"
     ports:
       - "${PORT:-3000}:3000"
-    env_file:
-      - .env
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -38,9 +36,8 @@ services:
       - judge_net
 
   backend-migrate:
-    env_file:
-      - .env
     environment:
+      - PORT=3000
       - NODE_ENV=development
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     command: npm run prisma:migrate:deploy
@@ -54,6 +51,7 @@ services:
     environment:
       - NODE_ENV=development
       - BACKEND_URL=http://backend:3000
+      - PORT=5173
     volumes:
       - ./frontend:/app
       - /app/node_modules

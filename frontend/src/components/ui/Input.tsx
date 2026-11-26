@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import type { ComponentPropsWithRef } from "react";
+import { cn } from "@/lib/cn";
 
 export type InputProps = ComponentPropsWithRef<"input"> & {
   label?: string;
@@ -18,12 +19,24 @@ export function Input({
   disabled,
   className = "",
   wrapperClassName = "",
+  "aria-describedby": describedBy,
+  "aria-invalid": ariaInvalid,
   ...props
 }: InputProps) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const hintId = `${inputId}-hint`;
   const errorId = `${inputId}-error`;
+  const descriptionIds =
+    [
+      ...new Set(
+        [describedBy, error ? errorId : hint ? hintId : undefined]
+          .filter(Boolean)
+          .join(" ")
+          .split(/\s+/)
+          .filter(Boolean),
+      ),
+    ].join(" ") || undefined;
 
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
@@ -33,7 +46,7 @@ export function Input({
     : "border-border hover:border-accent/60 focus-within:border-accent focus-within:shadow-glow";
 
   return (
-    <div className={`flex flex-col gap-1.5 ${wrapperClassName}`}>
+    <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
       {label && (
         <label
           htmlFor={inputId}
@@ -53,9 +66,12 @@ export function Input({
           id={inputId}
           type={isPassword && showPassword ? "text" : type}
           disabled={disabled}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : hint ? hintId : undefined}
-          className={`w-full min-w-0 bg-transparent px-3 py-2 text-sm text-foreground caret-accent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed autofill:shadow-[inset_0_0_0_1000px_var(--color-card)] autofill:[-webkit-text-fill-color:var(--color-foreground)] ${className}`}
+          aria-invalid={error ? true : ariaInvalid}
+          aria-describedby={descriptionIds}
+          className={cn(
+            "w-full min-w-0 bg-transparent px-3 py-2 text-sm text-foreground caret-accent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed autofill:shadow-[inset_0_0_0_1000px_var(--color-card)] autofill:[-webkit-text-fill-color:var(--color-foreground)]",
+            className,
+          )}
           {...props}
         />
 
