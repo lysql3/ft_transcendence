@@ -1,7 +1,8 @@
 import {
 	Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query,
 } from '@nestjs/common';
-import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
+import { AllowAnonymous, OptionalAuth, Session } from '@thallesp/nestjs-better-auth';
+import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ProblemService } from './problem.service.js';
 import { CreateProblemDto, TestCaseFieldsDto } from './dto/create-problem.dto.js';
 import { ListProblemsQueryDto } from './dto/list-problems-query.dto.js';
@@ -11,10 +12,10 @@ import { UpdateProblemFieldsDto } from './dto/update-problem.dto.js';
 export class ProblemController {
 	constructor(private readonly problemService: ProblemService) {}
 
-	@AllowAnonymous() // test only, remove before production
+	@OptionalAuth()
 	@Get()
-	findAll(@Query() query: ListProblemsQueryDto) {
-		return this.problemService.findAll(query);
+	findAll(@Query() query: ListProblemsQueryDto, @Session() session: UserSession | null) {
+		return this.problemService.findAll(query, session?.user.id);
 	}
 
 	@AllowAnonymous() // test only
