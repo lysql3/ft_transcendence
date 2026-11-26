@@ -9,8 +9,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  getCurrentUser(@Session() session: UserSession) {
-    return { user: session.user };
+  async getCurrentUser(@Session() session: UserSession) {
+    const user = await this.usersService.findById(session.user.id);
+    return { user };
   }
 
   @Patch('me')

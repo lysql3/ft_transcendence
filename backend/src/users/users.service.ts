@@ -6,6 +6,13 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: { profile: true },
+    });
+  }
+
   update(id: string, data: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id },
@@ -16,6 +23,7 @@ export class UsersService {
         name: true,
         image: true,
         createdAt: true,
+        profile: true,
       },
     });
   }
