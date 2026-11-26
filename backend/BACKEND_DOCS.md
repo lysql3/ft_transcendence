@@ -77,6 +77,9 @@ export class AppModule {}
 
 ## Authentication and Route Protection
 
+For frontend-facing Better Auth and user endpoint details, see
+[AUTH_API.md](AUTH_API.md).
+
 `AuthModule.forRoot({ auth })` registers the Better Auth routes and a global
 `AuthGuard` by default. Therefore, a controller route is authenticated unless
 it explicitly opts out with `@AllowAnonymous()` or `@OptionalAuth()`.
@@ -335,8 +338,8 @@ Cross-user mutation tests must verify that an authenticated user receives
 
 ## Current Limitations
 
-- GitHub OAuth is not configured yet.
-- SMTP email delivery is not configured yet.
+- GitHub OAuth is enabled only when both provider credentials are configured.
+- SMTP email delivery and password recovery are not configured yet.
 - Problem, language, match, and submission controllers are not implemented.
 - WebSocket authentication and room authorization still need integration tests.
 - User listing privacy and pagination still need refinement.
