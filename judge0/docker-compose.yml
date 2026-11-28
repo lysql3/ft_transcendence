@@ -1,5 +1,4 @@
-x-logging:
-  &default-logging
+x-logging: &default-logging
   logging:
     driver: json-file
     options:
@@ -20,6 +19,7 @@ services:
       judge_net:
         aliases:
           - judge0
+
   workers:
     image: judge0/judge0:1.13.1
     command: ["./scripts/workers"]
@@ -28,10 +28,16 @@ services:
     privileged: true
     <<: *default-logging
     restart: always
+    networks:
+      default:
+      judge_net:
 
   db:
     image: postgres:16.2
-    env_file: judge0.conf
+    environment:
+      POSTGRES_DB: judge0
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0-dev-postgres
     volumes:
       - data:/var/lib/postgresql/data/
     <<: *default-logging
@@ -39,11 +45,12 @@ services:
 
   redis:
     image: redis:7.2.4
-    command: [
-      "bash", "-c",
-      'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"'
-    ]
-    env_file: judge0.conf
+    command:
+      - bash
+      - -c
+      - docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"
+    environment:
+      REDIS_PASSWORD: judge0-dev-redis
     <<: *default-logging
     restart: always
 
@@ -52,5 +59,4 @@ volumes:
 
 networks:
   judge_net:
-    external: true
-
+    name: judge_net

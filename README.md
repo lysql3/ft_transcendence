@@ -277,3 +277,43 @@ make fclean
 | `make test-e2e`      | Run backend e2e tests locally                         |
 | `make lint`          | Run linter on both backend and frontend               |
 | `make build-local`   | Build both backend and frontend locally               |
+
+---
+
+## Single-Command Production Stack
+
+On a clean clone, use the Makefile entry point:
+
+```bash
+make prod-d
+```
+
+This initializes `.env`, builds the production images, checks the Judge0 cgroup requirement, starts Judge0 dependencies and workers, and starts the production backend and Nginx gateway. For attached logs, use `make prod`.
+
+The development defaults are not production secrets. Before deploying, replace database passwords, `BETTER_AUTH_SECRET`, GitHub credentials, Judge0 authentication, Redis, and Judge0 PostgreSQL values with deployment secrets.
+
+### Judge0 Cgroup Requirement
+
+Judge0 execution containers require cgroup v1. If Docker reports cgroup v2, Judge0 will fail even if the application stack starts:
+
+```text
+Judge0 setup failed: Docker is using cgroup v2, but this Judge0 image requires cgroup v1.
+```
+
+Switch the Linux host to cgroup v1, reboot, and verify:
+
+```bash
+sudo sh -c 'printf "\nGRUB_CMDLINE_LINUX=\"$GRUB_CMDLINE_LINUX systemd.unified_cgroup_hierarchy=0\"\n" >> /etc/default/grub'
+sudo update-grub
+sudo reboot
+
+docker info --format '{{.CgroupVersion}}'
+```
+
+The Makefile targets run `scripts/check-cgroup-v1.sh` before starting Judge0:
+
+```bash
+make prod-d
+make dev
+make judge-up
+```

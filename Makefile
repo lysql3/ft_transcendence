@@ -22,6 +22,7 @@ MAGENTA	= \033[35m
 .PHONY: help dev dev-d build-dev down-dev restart-dev logs-dev \
 	backend backend-d build-backend \
         prod prod-d build-prod down-prod restart-prod logs-prod \
+	judge-up judge-down judge-net cgroup-check \
 	down clean fclean docker-clean init-env test test-e2e lint build-local \
 	db-up migrate-dev migrate-deploy host-backend psql
 
@@ -75,11 +76,11 @@ psql:
 	$(CMD_DEV) exec postgres sh -c 'psql -U "$$POSTGRES_USER" "$$POSTGRES_DB"'
 
 # dev
-dev: init-env build-dev
+dev: init-env build-dev judge-up
 	@echo "$(GREEN)Starting development environment (hot-reload enabled)…$(RESET)"
 	$(CMD_DEV) up -V postgres adminer backend frontend frontend-nginx
 
-dev-d: init-env build-dev
+dev-d: init-env build-dev judge-up
 	@echo "$(GREEN)Starting development environment in detached mode…$(RESET)"
 	$(CMD_DEV) up -d -V postgres adminer backend frontend frontend-nginx
 
@@ -97,12 +98,12 @@ logs-dev:
 	$(CMD_DEV) logs -f $(filter-out $@,$(MAKECMDGOALS))
 
 # postgres and backend and dependencies
-backend: init-env build-backend
+backend: init-env build-backend judge-up
 	@echo "$(GREEN)Starting backend and dependency services…$(RESET)"
 	$(CMD_DEV) up backend
 
-backend-d: init-env build-backend
-	@echo "$(GREEN)Starting backend and dependency services in detached mode…$(RESET)"
+backend-d: init-env build-backend judge-up
+	@echo "$(GREEN)Starting backend and dependency services in background…$(RESET)"
 	$(CMD_DEV) up -d backend
 
 build-backend: init-env
@@ -118,25 +119,36 @@ postgres-d: init-env
 	$(CMD_DEV) up -d postgres
 
 judge-up: judge-net
-	@echo "$(CYAN)Starting Judge0…$(RESET)"
-	cd $(JUDGE_DIR) && docker compose up -d db redis
-	sleep 10
-	cd $(JUDGE_DIR) && docker compose up -d
+	@cd $(JUDGE_DIR) && \
+	server_id=$$(docker compose ps -q server) && \
+	workers_id=$$(docker compose ps -q workers) && \
+	server_running=$$(if [ -n "$$server_id" ]; then docker inspect -f '{{.State.Running}}' $$server_id 2>/dev/null; fi) && \
+	workers_running=$$(if [ -n "$$workers_id" ]; then docker inspect -f '{{.State.Running}}' $$workers_id 2>/dev/null; fi) && \
+	if [ "$$server_running" = "true" ] && [ "$$workers_running" = "true" ]; then \
+		echo "$(CYAN)Judge0 is already running…$(RESET)"; \
+	else \
+		cd .. && ./scripts/check-cgroup-v1.sh && cd $(JUDGE_DIR) && \
+		echo "$(CYAN)Starting Judge0…$(RESET)" && \
+		docker compose up -d db redis server workers; \
+	fi
+
+cgroup-check:
+	./scripts/check-cgroup-v1.sh
 
 judge-net:
 	@docker network inspect judge_net >/dev/null 2>&1 || docker network create judge_net
 
 judge-down:
-	cd $(JUDGE_DIR) && docker compose down
+	@cd $(JUDGE_DIR) && docker compose down
 
 backend-full: judge-up backend-d
 
 # prod
-prod: init-env build-prod
+prod: init-env build-prod judge-up
 	@echo "$(MAGENTA)Starting production environment…$(RESET)"
 	$(CMD_PROD) up backend frontend-nginx
 
-prod-d: init-env build-prod
+prod-d: init-env build-prod judge-up
 	@echo "$(MAGENTA)Starting production environment in detached mode…$(RESET)"
 	$(CMD_PROD) up -d backend frontend-nginx
 
@@ -156,24 +168,24 @@ logs-prod:
 
 # cleanup
 down:
-	@echo "$(YELLOW)Stopping all project containers…$(RESET)"
+	@echo "$(YELLOW)Stopping all application project containers…$(RESET)"
 	$(CMD_DEV) down
 	$(CMD_PROD) down
 
 clean:
-	@echo "$(YELLOW)Stopping containers and removing volumes…$(RESET)"
+	@echo "$(YELLOW)Stopping application containers and removing volumes…$(RESET)"
 	$(CMD_DEV) down -v
 	$(CMD_PROD) down -v
 
 fclean: clean
-	@echo "$(YELLOW)Removing all project images…$(RESET)"
+	@echo "$(YELLOW)Removing application images and orphans…$(RESET)"
 	$(CMD_DEV) down -v --rmi local
 	$(CMD_PROD) down -v --rmi local
 
 docker-clean:
-	@echo "$(YELLOW)Removing all Compose containers, images, networks, and volumes (sudo)…$(RESET)"
-	sudo $(CMD_DEV) down --volumes --rmi all --remove-orphans
-	sudo $(CMD_PROD) down --volumes --rmi all --remove-orphans
+	@echo "$(YELLOW)Removing application Compose resources…$(RESET)"
+	$(CMD_DEV) down --volumes --rmi all --remove-orphans
+	$(CMD_PROD) down --volumes --rmi all --remove-orphans
 
 # tests
 test: init-env

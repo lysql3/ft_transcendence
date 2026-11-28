@@ -4,17 +4,15 @@ services:
     init: true
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:-transcendence}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-transcendence}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
-        ]
+        - CMD-SHELL
+        - pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}
       interval: 5s
       timeout: 3s
       retries: 10
@@ -22,25 +20,26 @@ services:
       - ft_tra_networks
 
   backend:
-    command: sh -c "npm run prisma:generate && npx prisma migrate deploy && npx prisma db seed && npm run start:dev"
+    command: sh -c "npm run prisma:generate && npx prisma migrate deploy && npx prisma db seed && npm run start:prod"
     build:
       context: ./backend
     restart: unless-stopped
-    env_file:
-      - .env
     depends_on:
       postgres:
         condition: service_healthy
       backend-migrate:
         condition: service_completed_successfully
     environment:
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-generate-a-long-random-value}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://transcendence:devpassword@postgres:5432/transcendence}
+      JUDGE0_URL: ${JUDGE0_URL:-http://judge0:2358}
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN:-judge0-dev-token}
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "wget -qO- http://127.0.0.1:$${PORT:-3000}/api/health >/dev/null || exit 1",
-        ]
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1:$${PORT:-3000}/api/health >/dev/null || exit 1
       interval: 5s
       timeout: 3s
       retries: 12
@@ -59,6 +58,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://transcendence:devpassword@postgres:5432/transcendence}
     networks:
       - ft_tra_networks
 
@@ -66,7 +67,8 @@ networks:
   ft_tra_networks:
     driver: bridge
   judge_net:
-    external: true
+    name: judge_net
+    driver: bridge
 
 volumes:
   pgdata:
